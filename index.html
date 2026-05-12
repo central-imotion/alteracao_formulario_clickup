@@ -1,0 +1,672 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Transição de Formulários — iMotion Agency</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: { sans: ['Inter', 'sans-serif'] },
+          colors: {
+            dark: { 50: '#f7f7f8', 100: '#ececf1', 200: '#d9d9e3', 300: '#c5c5d2', 400: '#acacbe', 500: '#8e8ea0', 600: '#565869', 700: '#40414f', 800: '#343541', 900: '#202123', 950: '#050509' },
+            accent: { DEFAULT: '#6366f1', light: '#818cf8', dark: '#4f46e5' },
+            success: { DEFAULT: '#10b981', light: '#34d399' },
+            warn: { DEFAULT: '#f59e0b' },
+            danger: { DEFAULT: '#ef4444' }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    * {
+      scrollbar-width: thin;
+      scrollbar-color: #40414f #202123;
+    }
+
+    body {
+      background: #050509;
+      color: #ececf1;
+      font-family: 'Inter', sans-serif;
+    }
+
+    .card {
+      background: rgba(52, 53, 65, 0.6);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      backdrop-filter: blur(12px);
+      border-radius: 16px;
+      transition: all 0.3s ease;
+    }
+
+    .card:hover {
+      border-color: rgba(99, 102, 241, 0.3);
+      box-shadow: 0 0 30px rgba(99, 102, 241, 0.05);
+    }
+
+    .input-field {
+      background: #202123;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 10px;
+      color: #ececf1;
+      padding: 10px 14px;
+      width: 100%;
+      transition: all 0.25s ease;
+      font-size: 14px;
+    }
+
+    .input-field:focus {
+      outline: none;
+      border-color: #6366f1;
+      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+    }
+
+    .input-field::placeholder {
+      color: #565869;
+    }
+
+    select.input-field {
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23565869' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 12px center;
+      padding-right: 36px;
+    }
+
+    select.input-field option {
+      background: #202123;
+      color: #ececf1;
+    }
+
+    .label {
+      font-size: 13px;
+      font-weight: 500;
+      color: #8e8ea0;
+      margin-bottom: 6px;
+      display: block;
+      letter-spacing: 0.02em;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #6366f1, #4f46e5);
+      color: white;
+      border: none;
+      border-radius: 12px;
+      padding: 14px 28px;
+      font-weight: 600;
+      font-size: 15px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 30px rgba(99, 102, 241, 0.3);
+    }
+
+    .btn-primary:active {
+      transform: translateY(0);
+    }
+
+    .btn-primary:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: #ececf1;
+      border-radius: 10px;
+      padding: 10px 18px;
+      font-weight: 500;
+      font-size: 13px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .btn-secondary:hover {
+      background: rgba(99, 102, 241, 0.1);
+      border-color: rgba(99, 102, 241, 0.3);
+    }
+
+    .btn-danger-sm {
+      background: rgba(239, 68, 68, 0.1);
+      border: 1px solid rgba(239, 68, 68, 0.2);
+      color: #ef4444;
+      border-radius: 8px;
+      padding: 8px 10px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      font-size: 13px;
+    }
+
+    .btn-danger-sm:hover {
+      background: rgba(239, 68, 68, 0.2);
+    }
+
+    .mapping-row {
+      animation: slideIn 0.3s ease;
+    }
+
+    @keyframes slideIn {
+      from {
+        opacity: 0;
+        transform: translateY(-8px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+      }
+
+      to {
+        opacity: 1;
+      }
+    }
+
+    @keyframes scaleIn {
+      from {
+        opacity: 0;
+        transform: scale(0.95);
+      }
+
+      to {
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+
+    .modal-overlay {
+      animation: fadeIn 0.2s ease;
+    }
+
+    .modal-content {
+      animation: scaleIn 0.3s ease;
+    }
+
+    .step-number {
+      width: 28px;
+      height: 28px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+
+      0%,
+      100% {
+        opacity: 1;
+      }
+
+      50% {
+        opacity: 0.4;
+      }
+    }
+
+    .toast { animation: toastIn 0.4s ease; }
+    @keyframes toastIn { from { opacity:0; transform: translateY(20px); } to { opacity:1; transform: translateY(0); } }
+
+    /* Searchable dropdown */
+    .search-dropdown { position: relative; }
+    .search-dropdown input { cursor: text; }
+    .dropdown-list { position: absolute; top: 100%; left: 0; right: 0; max-height: 240px; overflow-y: auto; background: #202123; border: 1px solid rgba(255,255,255,0.12); border-radius: 10px; margin-top: 4px; z-index: 40; display: none; }
+    .dropdown-list.open { display: block; animation: scaleIn 0.15s ease; }
+    .dropdown-item { padding: 10px 14px; font-size: 14px; cursor: pointer; transition: background 0.15s; }
+    .dropdown-item:hover, .dropdown-item.active { background: rgba(99,102,241,0.15); }
+    .dropdown-empty { padding: 10px 14px; font-size: 13px; color: #565869; }
+  </style>
+</head>
+
+<body class="min-h-screen p-4 md:p-8">
+
+  <!-- Header -->
+  <div class="max-w-3xl mx-auto mb-8">
+    <div class="flex items-center gap-3 mb-2">
+      <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-accent to-accent-dark flex items-center justify-center text-white font-bold text-lg">iM</div>
+      <div>
+        <h1 class="text-xl font-bold text-dark-100">Transição de Formulários</h1>
+        <p class="text-xs text-dark-500">Meta Ads Lead Forms — iMotion Agency</p>
+      </div>
+    </div>
+    <div class="flex items-center gap-2 mt-3">
+      <div class="status-dot bg-success" id="apiStatus"></div>
+      <span class="text-xs text-dark-500" id="apiStatusText">Conectando ao ClickUp...</span>
+    </div>
+  </div>
+
+  <!-- Form -->
+  <form id="mainForm" class="max-w-3xl mx-auto space-y-5" onsubmit="return false;">
+
+    <!-- Card 1: Identificação -->
+    <div class="card p-6" style="position:relative; z-index:10;">
+      <div class="flex items-center gap-3 mb-5">
+        <div class="step-number bg-accent/20 text-accent">1</div>
+        <h2 class="text-sm font-semibold text-dark-200 uppercase tracking-wider">Identificação Geral</h2>
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+        <div class="search-dropdown">
+          <label class="label">Cliente *</label>
+          <input type="text" class="input-field" id="clientSearch" placeholder="Carregando clientes..." autocomplete="off">
+          <input type="hidden" id="clientSelect" value="">
+          <div class="dropdown-list" id="clientDropdown"></div>
+        </div>
+        <div>
+          <label class="label" for="assignee">Responsável pela Automação *</label>
+          <select class="input-field" id="assignee" required>
+            <option value="">Carregando membros...</option>
+          </select>
+        </div>
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label class="label" for="goLiveDate">Prazo de Execução *</label>
+          <input type="date" class="input-field" id="goLiveDate" required>
+        </div>
+        <div>
+          <label class="label" for="priority">Prioridade *</label>
+          <select class="input-field" id="priority" required>
+            <option value="4">🟢 Baixa</option>
+            <option value="3" selected>🔵 Normal</option>
+            <option value="2">🟡 Alta</option>
+            <option value="1">🔴 Urgente</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- Card 2: IDs Técnicos -->
+    <div class="card p-6">
+      <div class="flex items-center gap-3 mb-5">
+        <div class="step-number bg-accent/20 text-accent">2</div>
+        <h2 class="text-sm font-semibold text-dark-200 uppercase tracking-wider">Identificadores Técnicos</h2>
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+        <div>
+          <label class="label" for="oldFormId">ID / Nome do Form Antigo *</label>
+          <input type="text" class="input-field" id="oldFormId" placeholder="Ex: REV-PJ V2 (ID: 123456)" required>
+        </div>
+        <div>
+          <label class="label" for="newFormId">ID / Nome do Form Novo *</label>
+          <input type="text" class="input-field" id="newFormId" placeholder="Ex: REV-PJ V3 (ID: 789012)" required>
+        </div>
+      </div>
+      <div>
+        <label class="label" for="campaigns">Campanhas / Conjuntos de Anúncios Afetados</label>
+        <textarea class="input-field" id="campaigns" rows="3"
+          placeholder="Liste as campanhas afetadas, uma por linha..."></textarea>
+      </div>
+    </div>
+
+    <!-- Card 3: Mapeamento De/Para -->
+    <div class="card p-6">
+      <div class="flex items-center gap-3 mb-5">
+        <div class="step-number bg-accent/20 text-accent">3</div>
+        <h2 class="text-sm font-semibold text-dark-200 uppercase tracking-wider">Mapeamento De/Para</h2>
+      </div>
+      <div id="mappingsContainer" class="space-y-3 mb-4"></div>
+      <button type="button" class="btn-secondary" onclick="addMapping()">+ Adicionar Mapeamento</button>
+    </div>
+
+    <!-- Card 4: Observações -->
+    <div class="card p-6">
+      <div class="flex items-center gap-3 mb-5">
+        <div class="step-number bg-accent/20 text-accent">4</div>
+        <h2 class="text-sm font-semibold text-dark-200 uppercase tracking-wider">Observações</h2>
+      </div>
+      <div>
+        <label class="label" for="observations">Informações adicionais sobre a transição</label>
+        <textarea class="input-field" id="observations" rows="3"
+          placeholder="Ex: Versão do formulário alterada, detalhes importantes para o gestor de automação..."></textarea>
+      </div>
+    </div>
+
+    <!-- Card 5: Ação -->
+    <div class="card p-6">
+      <div class="flex items-center gap-3 mb-4">
+        <div class="step-number bg-success/20 text-success">✓</div>
+        <h2 class="text-sm font-semibold text-dark-200 uppercase tracking-wider">Criar Task</h2>
+      </div>
+      <p class="text-sm text-dark-500 mb-5">Ao clicar, uma task será criada automaticamente no ClickUp na lista <strong
+          class="text-dark-300">Otimizações</strong> do cliente selecionado, com todos os dados estruturados e um
+        checklist de execução.</p>
+      <button type="button" class="btn-primary w-full md:w-auto" id="submitBtn" onclick="submitForm()">
+        🚀 Criar Task de Automação
+      </button>
+    </div>
+  </form>
+
+  <!-- Modal -->
+  <div id="modal" class="fixed inset-0 z-50 hidden items-center justify-center p-4" style="background:rgba(0,0,0,0.7)">
+    <div class="modal-content card p-6 max-w-lg w-full max-h-[80vh] overflow-auto">
+      <div class="flex items-center justify-between mb-4">
+        <h3 class="text-lg font-semibold" id="modalTitle">Resultado</h3>
+        <button onclick="closeModal()" class="text-dark-500 hover:text-dark-200 text-xl">&times;</button>
+      </div>
+      <div id="modalBody"></div>
+    </div>
+  </div>
+
+  <!-- Toast container -->
+  <div id="toastContainer" class="fixed bottom-6 right-6 z-50 space-y-2"></div>
+
+  <script>
+    // ==================== CONFIG ====================
+    const CONFIG = {
+      API_TOKEN: 'pk_272628636_8QC0MP6Q08AYITUELGYBKB68SQSGIC2Q',
+      TEAM_ID: '3037111',
+      SPACE_ID: '90141290843',
+      BASE_URL: 'https://api.clickup.com/api/v2'
+    };
+
+    // ==================== STATE ====================
+    let clients = [];
+    let members = [];
+    let mappings = [];
+    let mappingCounter = 0;
+    let selectedClientIdx = -1;
+
+    // ==================== API HELPERS ====================
+    async function apiGet(path) {
+      const res = await fetch(`${CONFIG.BASE_URL}${path}`, {
+        headers: { 'Authorization': CONFIG.API_TOKEN }
+      });
+      if (!res.ok) throw new Error(`API Error ${res.status}: ${await res.text()}`);
+      return res.json();
+    }
+
+    async function apiPost(path, body) {
+      const res = await fetch(`${CONFIG.BASE_URL}${path}`, {
+        method: 'POST',
+        headers: { 'Authorization': CONFIG.API_TOKEN, 'Content-Type': 'application/json' },
+        body: JSON.stringify(body)
+      });
+      if (!res.ok) throw new Error(`API Error ${res.status}: ${await res.text()}`);
+      return res.json();
+    }
+
+    // ==================== INIT ====================
+    async function init() {
+      try {
+        // Fetch folders (clients)
+        const data = await apiGet(`/space/${CONFIG.SPACE_ID}/folder?archived=false`);
+        const folders = data.folders.filter(f => f.name !== '[CS] Client Success');
+        clients = [];
+        for (const folder of folders) {
+          const otimList = folder.lists.find(l => l.name.toLowerCase().includes('otimiza'));
+          if (otimList) {
+            clients.push({ name: folder.name, folderId: folder.id, otimizacoesListId: otimList.id, clientFieldValue: null });
+          }
+        }
+        clients.sort((a, b) => a.name.localeCompare(b.name, 'pt-BR'));
+        document.getElementById('clientSearch').placeholder = 'Buscar cliente...';
+        initSearchDropdown();
+
+        // Fetch workspace members
+        const spaceData = await apiGet(`/space/${CONFIG.SPACE_ID}`);
+        members = (spaceData.members || []).map(m => ({ id: m.user.id, name: m.user.username, avatar: m.user.profilePicture }));
+        const assigneeSelect = document.getElementById('assignee');
+        assigneeSelect.innerHTML = '<option value="">Selecione o responsável...</option>';
+        members.forEach(m => { assigneeSelect.innerHTML += `<option value="${m.id}">${m.name}</option>`; });
+
+        setStatus('success', `Conectado — ${clients.length} clientes, ${members.length} membros`);
+      } catch (err) {
+        setStatus('error', `Erro ao conectar: ${err.message}`);
+        console.error(err);
+      }
+      addMapping();
+    }
+
+    // ==================== SEARCHABLE DROPDOWN ====================
+    function initSearchDropdown() {
+      const input = document.getElementById('clientSearch');
+      const dropdown = document.getElementById('clientDropdown');
+      const hidden = document.getElementById('clientSelect');
+
+      function renderList(filter = '') {
+        const filtered = clients.map((c, i) => ({...c, idx: i})).filter(c => c.name.toLowerCase().includes(filter.toLowerCase()));
+        dropdown.innerHTML = filtered.length ? filtered.map(c => `<div class="dropdown-item" data-idx="${c.idx}">${c.name}</div>`).join('') : '<div class="dropdown-empty">Nenhum cliente encontrado</div>';
+      }
+
+      input.addEventListener('focus', () => { renderList(input.value); dropdown.classList.add('open'); });
+      input.addEventListener('input', () => { renderList(input.value); dropdown.classList.add('open'); hidden.value = ''; selectedClientIdx = -1; });
+
+      dropdown.addEventListener('click', (e) => {
+        const item = e.target.closest('.dropdown-item');
+        if (!item) return;
+        const idx = parseInt(item.dataset.idx);
+        input.value = clients[idx].name;
+        hidden.value = idx;
+        selectedClientIdx = idx;
+        dropdown.classList.remove('open');
+        fetchClientFieldValue(idx);
+      });
+
+      document.addEventListener('click', (e) => { if (!e.target.closest('.search-dropdown')) dropdown.classList.remove('open'); });
+    }
+
+    async function fetchClientFieldValue(idx) {
+      try {
+        const data = await apiGet(`/list/${clients[idx].otimizacoesListId}/task?page=0&limit=1`);
+        if (data.tasks && data.tasks.length > 0) {
+          const cf = data.tasks[0].custom_fields?.find(f => f.name === 'Cliente');
+          if (cf && cf.value) clients[idx].clientFieldValue = cf.value;
+        }
+      } catch (e) { console.warn('Não foi possível buscar o nome do cliente:', e); }
+    }
+
+    function setStatus(type, text) {
+      const dot = document.getElementById('apiStatus');
+      const label = document.getElementById('apiStatusText');
+      dot.className = 'status-dot ' + (type === 'success' ? 'bg-success' : type === 'error' ? 'bg-danger' : 'bg-warn');
+      label.textContent = text;
+    }
+
+    // ==================== MAPPINGS ====================
+    function addMapping() {
+      const id = mappingCounter++;
+      mappings.push(id);
+      const container = document.getElementById('mappingsContainer');
+      const row = document.createElement('div');
+      row.className = 'mapping-row flex items-center gap-3';
+      row.id = `mapping-${id}`;
+      row.innerHTML = `
+    <input type="text" class="input-field flex-1" placeholder="Campo Antigo" data-mapping-old="${id}">
+    <span class="text-dark-500 text-lg">→</span>
+    <input type="text" class="input-field flex-1" placeholder="Campo Novo" data-mapping-new="${id}">
+    <button type="button" class="btn-danger-sm" onclick="removeMapping(${id})">🗑️</button>
+  `;
+      container.appendChild(row);
+    }
+
+    function removeMapping(id) {
+      mappings = mappings.filter(m => m !== id);
+      const el = document.getElementById(`mapping-${id}`);
+      if (el) { el.style.opacity = '0'; el.style.transform = 'translateY(-8px)'; setTimeout(() => el.remove(), 200); }
+    }
+
+    function getMappings() {
+      const result = [];
+      for (const id of mappings) {
+        const oldVal = document.querySelector(`[data-mapping-old="${id}"]`)?.value?.trim();
+        const newVal = document.querySelector(`[data-mapping-new="${id}"]`)?.value?.trim();
+        if (oldVal || newVal) result.push({ old: oldVal || '—', new: newVal || '—' });
+      }
+      return result;
+    }
+
+    // ==================== SUBMIT ====================
+    async function submitForm() {
+      const btn = document.getElementById('submitBtn');
+      const clientIdx = document.getElementById('clientSelect').value;
+      const goLive = document.getElementById('goLiveDate').value;
+      const priority = document.getElementById('priority').value;
+      const oldForm = document.getElementById('oldFormId').value.trim();
+      const newForm = document.getElementById('newFormId').value.trim();
+      const campaigns = document.getElementById('campaigns').value.trim();
+      const obs = document.getElementById('observations').value.trim();
+      const mapData = getMappings();
+
+      if (clientIdx === '' || !goLive || !oldForm || !newForm) {
+        showToast('Preencha todos os campos obrigatórios (*)', 'error');
+        return;
+      }
+
+      const client = clients[parseInt(clientIdx)];
+      btn.disabled = true;
+      btn.textContent = '⏳ Criando task...';
+
+      // Build description — clean format for ClickUp
+      let desc = `📋 IDENTIFICADORES TÉCNICOS\n`;
+      desc += `━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n`;
+      desc += `▸ Form Antigo: ${oldForm}\n`;
+      desc += `▸ Form Novo:   ${newForm}\n`;
+
+      if (campaigns) {
+        desc += `\n🎯 CAMPANHAS / CONJUNTOS AFETADOS\n`;
+        desc += `━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n`;
+        campaigns.split('\n').filter(l => l.trim()).forEach(l => { desc += `▸ ${l.trim()}\n`; });
+      }
+
+      if (mapData.length > 0) {
+        desc += `\n🔄 MAPEAMENTO DE/PARA\n`;
+        desc += `━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n`;
+        mapData.forEach(m => { desc += `▸ ${m.old}  →  ${m.new}\n`; });
+      }
+
+      if (obs) {
+        desc += `\n📝 OBSERVAÇÕES\n`;
+        desc += `━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n`;
+        desc += `${obs}\n`;
+      }
+
+      desc += `\n─────────────────────────────\n⚡ Task gerada automaticamente pelo Formulário de Transição — iMotion Agency`;
+
+      const dueMs = new Date(goLive + 'T23:59:59').getTime();
+      const clientName = client.clientFieldValue || client.name;
+
+      const assigneeId = document.getElementById('assignee').value;
+      if (!assigneeId) { showToast('Selecione o responsável pela automação', 'error'); btn.disabled = false; btn.textContent = '🚀 Criar Task de Automação'; return; }
+      const assigneeName = members.find(m => m.id == assigneeId)?.name || '';
+
+      const taskBody = {
+        name: 'Transição de Formulários - Meta Ads',
+        description: desc,
+        assignees: [parseInt(assigneeId)],
+        tags: ['transicao-form'],
+        priority: parseInt(priority),
+        due_date: dueMs,
+        due_date_time: false,
+        status: 'agendado',
+        custom_fields: [
+          { id: '7a39eb0f-c345-4a0e-afb6-731face29d55', value: 'b1728ec3-c653-4bed-9367-298e041fa637' },
+          { id: '255f93b7-5151-4786-b1ba-076a50fa0ded', value: clientName }
+        ]
+      };
+
+      try {
+        const task = await apiPost(`/list/${client.otimizacoesListId}/task`, taskBody);
+
+        const checklist = await apiPost(`/task/${task.id}/checklist`, { name: 'Execução da Transição' });
+        const items = ['Verificar novo formulário no Meta Ads','Atualizar cenário no n8n / Make','Testar integração com CRM','Validar recebimento de lead teste','Desativar formulário antigo'];
+        for (const item of items) { await apiPost(`/checklist/${checklist.checklist.id}/checklist_item`, { name: item }); }
+
+        const taskUrl = `https://app.clickup.com/t/${task.id}`;
+        showModal('✅ Task Criada com Sucesso!', `
+      <div class="space-y-4">
+        <div class="p-4 rounded-xl bg-success/10 border border-success/20">
+          <p class="text-success font-semibold text-sm mb-1">Task criada em:</p>
+          <p class="text-dark-200 text-sm">${client.name} → Otimizações</p>
+        </div>
+        <div class="space-y-2 text-sm">
+          <p class="text-dark-400">Nome: <span class="text-dark-200">${taskBody.name}</span></p>
+          <p class="text-dark-400">Cliente: <span class="text-dark-200">${clientName}</span></p>
+          <p class="text-dark-400">Área: <span class="text-dark-200">AUT</span></p>
+          <p class="text-dark-400">Prioridade: <span class="text-dark-200">${['','🔴 Urgente','🟡 Alta','🔵 Normal','🟢 Baixa'][priority]}</span></p>
+          <p class="text-dark-400">Prazo: <span class="text-dark-200">${goLive}</span></p>
+        </div>
+        <a href="${taskUrl}" target="_blank" class="btn-primary inline-block text-center text-sm no-underline" style="text-decoration:none;">Abrir Task no ClickUp ↗</a>
+      </div>
+    `);
+
+        showToast('Task criada com sucesso!', 'success');
+        document.getElementById('mainForm').reset();
+        document.getElementById('clientSearch').value = '';
+        document.getElementById('clientSelect').value = '';
+        selectedClientIdx = -1;
+        document.getElementById('mappingsContainer').innerHTML = '';
+        mappings = [];
+        addMapping();
+
+      } catch (err) {
+        console.error(err);
+        showModal('❌ Erro ao Criar Task', `<div class="p-4 rounded-xl bg-danger/10 border border-danger/20"><p class="text-danger text-sm font-mono">${err.message}</p></div>`);
+        showToast('Erro ao criar task', 'error');
+      } finally {
+        btn.disabled = false;
+        btn.textContent = '🚀 Criar Task de Automação';
+      }
+    }
+
+    // ==================== UI HELPERS ====================
+    function showModal(title, html) {
+      document.getElementById('modalTitle').textContent = title;
+      document.getElementById('modalBody').innerHTML = html;
+      const m = document.getElementById('modal');
+      m.classList.remove('hidden');
+      m.classList.add('flex');
+    }
+
+    function closeModal() {
+      const m = document.getElementById('modal');
+      m.classList.add('hidden');
+      m.classList.remove('flex');
+    }
+
+    function showToast(msg, type) {
+      const c = document.getElementById('toastContainer');
+      const t = document.createElement('div');
+      const bg = type === 'success' ? 'bg-success/20 border-success/30 text-success-light' : 'bg-danger/20 border-danger/30 text-danger';
+      t.className = `toast px-5 py-3 rounded-xl border text-sm font-medium ${bg}`;
+      t.textContent = msg;
+      c.appendChild(t);
+      setTimeout(() => { t.style.opacity = '0'; setTimeout(() => t.remove(), 300); }, 4000);
+    }
+
+    document.getElementById('modal').addEventListener('click', (e) => {
+      if (e.target === document.getElementById('modal')) closeModal();
+    });
+
+    // ==================== START ====================
+    init();
+  </script>
+</body>
+
+</html>

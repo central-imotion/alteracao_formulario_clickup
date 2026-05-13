@@ -293,10 +293,10 @@
         <div>
           <label class="label" for="priority">Prioridade *</label>
           <select class="input-field" id="priority" required>
-            <option value="4">🟢 Baixa</option>
-            <option value="3" selected>🔵 Normal</option>
+            <option value="1" selected>🔴 Urgente</option>
             <option value="2">🟡 Alta</option>
-            <option value="1">🔴 Urgente</option>
+            <option value="3">🔵 Normal</option>
+            <option value="4">🟢 Baixa</option>
           </select>
         </div>
       </div>
@@ -318,21 +318,29 @@
           <input type="text" class="input-field" id="newFormId" placeholder="Ex: REV-PJ V3 (ID: 789012)" required>
         </div>
       </div>
-      <div>
-        <label class="label" for="campaigns">Campanhas / Conjuntos de Anúncios Afetados</label>
-        <textarea class="input-field" id="campaigns" rows="3"
-          placeholder="Liste as campanhas afetadas, uma por linha..."></textarea>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label class="label" for="campaigns">Campanhas Afetadas</label>
+          <textarea class="input-field" id="campaigns" rows="3"
+            placeholder="Liste as campanhas afetadas, uma por linha..."></textarea>
+        </div>
+        <div>
+          <label class="label" for="adsets">Conjuntos de Anúncios Afetados</label>
+          <textarea class="input-field" id="adsets" rows="3"
+            placeholder="Liste os conjuntos de anúncios, um por linha..."></textarea>
+        </div>
       </div>
+      <p class="text-xs text-dark-500 mt-3 flex items-center gap-1"><span class="text-accent">ℹ️</span> A troca será aplicada em <strong class="text-dark-300">TODOS</strong> os anúncios dentro dos conjuntos mencionados.</p>
     </div>
 
-    <!-- Card 3: Mapeamento De/Para -->
+    <!-- Card 3: Perguntas ou Configurações Alteradas -->
     <div class="card p-6">
       <div class="flex items-center gap-3 mb-5">
         <div class="step-number bg-accent/20 text-accent">3</div>
-        <h2 class="text-sm font-semibold text-dark-200 uppercase tracking-wider">Mapeamento De/Para</h2>
+        <h2 class="text-sm font-semibold text-dark-200 uppercase tracking-wider">Perguntas ou Configurações Alteradas</h2>
       </div>
       <div id="mappingsContainer" class="space-y-3 mb-4"></div>
-      <button type="button" class="btn-secondary" onclick="addMapping()">+ Adicionar Mapeamento</button>
+      <button type="button" class="btn-secondary" onclick="addMapping()">+ Adicionar Alteração</button>
     </div>
 
     <!-- Card 4: Observações -->
@@ -383,8 +391,19 @@
       API_TOKEN: 'pk_272628636_8QC0MP6Q08AYITUELGYBKB68SQSGIC2Q',
       TEAM_ID: '3037111',
       SPACE_ID: '90141290843',
-      BASE_URL: 'https://api.clickup.com/api/v2'
+      BASE_URL: 'https://api.clickup.com/api/v2',
+      SHEETS_LOG_URL: 'https://script.google.com/macros/s/AKfycbzP9Mn7wiMdh96Y-4Ir463UIDgcsBY6Ztn6Jt4K7Qlor7x12jrWOpayeMxzJs7gSdtk/exec',
+      RICARDO_ID: null  // Será preenchido automaticamente ao carregar membros
     };
+
+    const CHANGE_TYPES = [
+      { value: 'add_question', label: '➕ Adicionar pergunta' },
+      { value: 'remove_question', label: '➖ Remover pergunta' },
+      { value: 'change_options', label: '🔄 Mudar opções da pergunta' },
+      { value: 'add_remove_elimination', label: '🚫 Adicionar/Remover eliminação' },
+      { value: 'internal_config', label: '⚙️ Configuração interna' },
+      { value: 'new_form', label: '🆕 Forms novo (criado do zero)' }
+    ];
 
     // ==================== STATE ====================
     let clients = [];
@@ -431,7 +450,19 @@
 
         // Fetch workspace members
         const spaceData = await apiGet(`/space/${CONFIG.SPACE_ID}`);
-        members = (spaceData.members || []).map(m => ({ id: m.user.id, name: m.user.username, avatar: m.user.profilePicture }));
+        members = (spaceData.members || []).map(m => ({ id: m.user.id, name: m.user.username || m.user.email || `User ${m.user.id}`, avatar: m.user.profilePicture }));
+        console.log('Membros carregados (ID | Nome):');
+        members.forEach(m => console.log(`  ${m.id} | ${m.name}`));
+
+        // Auto-detectar Ricardo
+        const ricardo = members.find(m => m.name.toLowerCase().includes('ricardo'));
+        if (ricardo) {
+          CONFIG.RICARDO_ID = parseInt(ricardo.id);
+          console.log(`Ricardo encontrado: ID ${ricardo.id} (${ricardo.name})`);
+        } else {
+          console.warn('Ricardo não encontrado na lista de membros!');
+        }
+
         const assigneeSelect = document.getElementById('assignee');
         assigneeSelect.innerHTML = '<option value="">Selecione o responsável...</option>';
         members.forEach(m => { assigneeSelect.innerHTML += `<option value="${m.id}">${m.name}</option>`; });
@@ -442,6 +473,23 @@
         console.error(err);
       }
       addMapping();
+      setTomorrow();
+    }
+
+    // ==================== DATE HELPERS ====================
+    function setTomorrow() {
+      const d = new Date();
+      d.setDate(d.getDate() + 1);
+      const yyyy = d.getFullYear();
+      const mm = String(d.getMonth() + 1).padStart(2, '0');
+      const dd = String(d.getDate()).padStart(2, '0');
+      document.getElementById('goLiveDate').value = `${yyyy}-${mm}-${dd}`;
+    }
+
+    function formatDateBR(isoStr) {
+      // Converte YYYY-MM-DD para DD/MM/AAAA
+      const [yyyy, mm, dd] = isoStr.split('-');
+      return `${dd}/${mm}/${yyyy}`;
     }
 
     // ==================== SEARCHABLE DROPDOWN ====================
@@ -489,19 +537,22 @@
       label.textContent = text;
     }
 
-    // ==================== MAPPINGS ====================
+    // ==================== ALTERAÇÕES (MAPPINGS) ====================
     function addMapping() {
       const id = mappingCounter++;
       mappings.push(id);
       const container = document.getElementById('mappingsContainer');
       const row = document.createElement('div');
-      row.className = 'mapping-row flex items-center gap-3';
+      row.className = 'mapping-row flex flex-col md:flex-row items-start md:items-center gap-3';
       row.id = `mapping-${id}`;
+      const opts = CHANGE_TYPES.map(t => `<option value="${t.value}">${t.label}</option>`).join('');
       row.innerHTML = `
-    <input type="text" class="input-field flex-1" placeholder="Campo Antigo" data-mapping-old="${id}">
-    <span class="text-dark-500 text-lg">→</span>
-    <input type="text" class="input-field flex-1" placeholder="Campo Novo" data-mapping-new="${id}">
-    <button type="button" class="btn-danger-sm" onclick="removeMapping(${id})">🗑️</button>
+    <select class="input-field md:w-64 flex-shrink-0" data-mapping-type="${id}">
+      <option value="">Tipo de alteração...</option>
+      ${opts}
+    </select>
+    <input type="text" class="input-field flex-1" placeholder="Descreva a mudança..." data-mapping-desc="${id}">
+    <button type="button" class="btn-danger-sm flex-shrink-0" onclick="removeMapping(${id})">🗑️</button>
   `;
       container.appendChild(row);
     }
@@ -515,9 +566,12 @@
     function getMappings() {
       const result = [];
       for (const id of mappings) {
-        const oldVal = document.querySelector(`[data-mapping-old="${id}"]`)?.value?.trim();
-        const newVal = document.querySelector(`[data-mapping-new="${id}"]`)?.value?.trim();
-        if (oldVal || newVal) result.push({ old: oldVal || '—', new: newVal || '—' });
+        const typeVal = document.querySelector(`[data-mapping-type="${id}"]`)?.value;
+        const descVal = document.querySelector(`[data-mapping-desc="${id}"]`)?.value?.trim();
+        if (typeVal || descVal) {
+          const typeLabel = CHANGE_TYPES.find(t => t.value === typeVal)?.label || typeVal || '—';
+          result.push({ type: typeVal, typeLabel, description: descVal || '—' });
+        }
       }
       return result;
     }
@@ -531,6 +585,7 @@
       const oldForm = document.getElementById('oldFormId').value.trim();
       const newForm = document.getElementById('newFormId').value.trim();
       const campaigns = document.getElementById('campaigns').value.trim();
+      const adsets = document.getElementById('adsets').value.trim();
       const obs = document.getElementById('observations').value.trim();
       const mapData = getMappings();
 
@@ -539,26 +594,35 @@
         return;
       }
 
+      const dueDate = new Date(goLive + 'T23:59:59');
+      const goLiveBR = formatDateBR(goLive);
+
       const client = clients[parseInt(clientIdx)];
       btn.disabled = true;
       btn.textContent = '⏳ Criando task...';
 
-      // Build description — clean format for ClickUp
       let desc = `📋 IDENTIFICADORES TÉCNICOS\n`;
       desc += `━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n`;
       desc += `▸ Form Antigo: ${oldForm}\n`;
       desc += `▸ Form Novo:   ${newForm}\n`;
 
       if (campaigns) {
-        desc += `\n🎯 CAMPANHAS / CONJUNTOS AFETADOS\n`;
+        desc += `\n🎯 CAMPANHAS AFETADAS\n`;
         desc += `━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n`;
         campaigns.split('\n').filter(l => l.trim()).forEach(l => { desc += `▸ ${l.trim()}\n`; });
       }
 
-      if (mapData.length > 0) {
-        desc += `\n🔄 MAPEAMENTO DE/PARA\n`;
+      if (adsets) {
+        desc += `\n📦 CONJUNTOS DE ANÚNCIOS AFETADOS\n`;
         desc += `━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n`;
-        mapData.forEach(m => { desc += `▸ ${m.old}  →  ${m.new}\n`; });
+        adsets.split('\n').filter(l => l.trim()).forEach(l => { desc += `▸ ${l.trim()}\n`; });
+        desc += `⚠️ A troca será aplicada em TODOS os anúncios dentro dos conjuntos acima.\n`;
+      }
+
+      if (mapData.length > 0) {
+        desc += `\n🔧 PERGUNTAS / CONFIGURAÇÕES ALTERADAS\n`;
+        desc += `━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n`;
+        mapData.forEach(m => { desc += `▸ [${m.typeLabel}] — ${m.description}\n`; });
       }
 
       if (obs) {
@@ -576,10 +640,14 @@
       if (!assigneeId) { showToast('Selecione o responsável pela automação', 'error'); btn.disabled = false; btn.textContent = '🚀 Criar Task de Automação'; return; }
       const assigneeName = members.find(m => m.id == assigneeId)?.name || '';
 
+      // Sempre incluir Ricardo + o selecionado (sem duplicar)
+      const assigneeIds = new Set([parseInt(assigneeId)]);
+      if (CONFIG.RICARDO_ID) assigneeIds.add(CONFIG.RICARDO_ID);
+
       const taskBody = {
         name: 'Transição de Formulários - Meta Ads',
         description: desc,
-        assignees: [parseInt(assigneeId)],
+        assignees: [...assigneeIds],
         tags: ['transicao-form'],
         priority: parseInt(priority),
         due_date: dueMs,
@@ -595,10 +663,34 @@
         const task = await apiPost(`/list/${client.otimizacoesListId}/task`, taskBody);
 
         const checklist = await apiPost(`/task/${task.id}/checklist`, { name: 'Execução da Transição' });
-        const items = ['Verificar novo formulário no Meta Ads','Atualizar cenário no n8n / Make','Testar integração com CRM','Validar recebimento de lead teste','Desativar formulário antigo'];
-        for (const item of items) { await apiPost(`/checklist/${checklist.checklist.id}/checklist_item`, { name: item }); }
+        const checkItems = [
+          'Alterar o gatilho de forms na automação do Make para o novo formulário (seguindo nomenclatura padrão)',
+          'Desconectar o trigger do restante da automação e disparar um teste no Meta for Business',
+          'Reconectar o Trigger no restante da automação',
+          'Reconfigurar os novos campos em TODOS os módulos do Make (Sheets, HTTP Request, HTML do Email, Kommo etc)',
+          'Salvar tudo e disparar um teste final',
+          'Apagar o dado do teste da planilha de leads do cliente',
+          'Trocar o forms novo nos anúncios indicados pelo gestor dentro da campanha do cliente'
+        ];
+        for (const item of checkItems) { await apiPost(`/checklist/${checklist.checklist.id}/checklist_item`, { name: item }); }
 
         const taskUrl = `https://app.clickup.com/t/${task.id}`;
+
+        logToSheets({
+          timestamp: new Date().toLocaleString('pt-BR'),
+          cliente: clientName,
+          formAntigo: oldForm,
+          formNovo: newForm,
+          campanhas: campaigns,
+          conjuntos: adsets,
+          alteracoes: mapData.length > 0 ? mapData.map(m => `[${m.typeLabel}] ${m.description}`).join('; ') : '',
+          responsavel: assigneeName,
+          prioridade: ['','🔴 Urgente','🟡 Alta','🔵 Normal','🟢 Baixa'][priority],
+          prazo: goLiveBR,
+          taskUrl: taskUrl,
+          taskId: task.id
+        });
+
         showModal('✅ Task Criada com Sucesso!', `
       <div class="space-y-4">
         <div class="p-4 rounded-xl bg-success/10 border border-success/20">
@@ -610,7 +702,7 @@
           <p class="text-dark-400">Cliente: <span class="text-dark-200">${clientName}</span></p>
           <p class="text-dark-400">Área: <span class="text-dark-200">AUT</span></p>
           <p class="text-dark-400">Prioridade: <span class="text-dark-200">${['','🔴 Urgente','🟡 Alta','🔵 Normal','🟢 Baixa'][priority]}</span></p>
-          <p class="text-dark-400">Prazo: <span class="text-dark-200">${goLive}</span></p>
+          <p class="text-dark-400">Prazo: <span class="text-dark-200">${goLiveBR}</span></p>
         </div>
         <a href="${taskUrl}" target="_blank" class="btn-primary inline-block text-center text-sm no-underline" style="text-decoration:none;">Abrir Task no ClickUp ↗</a>
       </div>
@@ -624,6 +716,7 @@
         document.getElementById('mappingsContainer').innerHTML = '';
         mappings = [];
         addMapping();
+        setTomorrow();
 
       } catch (err) {
         console.error(err);
@@ -632,6 +725,21 @@
       } finally {
         btn.disabled = false;
         btn.textContent = '🚀 Criar Task de Automação';
+      }
+    }
+
+    // ==================== GOOGLE SHEETS LOG ====================
+    async function logToSheets(data) {
+      try {
+        await fetch(CONFIG.SHEETS_LOG_URL, {
+          method: 'POST',
+          mode: 'no-cors',
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+          body: JSON.stringify(data)
+        });
+        console.log('Log enviado para Google Sheets');
+      } catch (e) {
+        console.warn('Falha ao logar no Sheets:', e);
       }
     }
 

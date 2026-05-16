@@ -231,17 +231,107 @@
       }
     }
 
-    .toast { animation: toastIn 0.4s ease; }
-    @keyframes toastIn { from { opacity:0; transform: translateY(20px); } to { opacity:1; transform: translateY(0); } }
+    .toast {
+      animation: toastIn 0.4s ease;
+    }
+
+    @keyframes toastIn {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
 
     /* Searchable dropdown */
-    .search-dropdown { position: relative; }
-    .search-dropdown input { cursor: text; }
-    .dropdown-list { position: absolute; top: 100%; left: 0; right: 0; max-height: 240px; overflow-y: auto; background: #202123; border: 1px solid rgba(255,255,255,0.12); border-radius: 10px; margin-top: 4px; z-index: 40; display: none; }
-    .dropdown-list.open { display: block; animation: scaleIn 0.15s ease; }
-    .dropdown-item { padding: 10px 14px; font-size: 14px; cursor: pointer; transition: background 0.15s; }
-    .dropdown-item:hover, .dropdown-item.active { background: rgba(99,102,241,0.15); }
-    .dropdown-empty { padding: 10px 14px; font-size: 13px; color: #565869; }
+    .search-dropdown {
+      position: relative;
+    }
+
+    .search-dropdown input {
+      cursor: text;
+    }
+
+    .dropdown-list {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      max-height: 240px;
+      overflow-y: auto;
+      background: #202123;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 10px;
+      margin-top: 4px;
+      z-index: 40;
+      display: none;
+    }
+
+    .dropdown-list.open {
+      display: block;
+      animation: scaleIn 0.15s ease;
+    }
+
+    .dropdown-item {
+      padding: 10px 14px;
+      font-size: 14px;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+
+    .dropdown-item:hover,
+    .dropdown-item.active {
+      background: rgba(99, 102, 241, 0.15);
+    }
+
+    .dropdown-empty {
+      padding: 10px 14px;
+      font-size: 13px;
+      color: #565869;
+    }
+
+    .btn-toggle {
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: #8e8ea0;
+      border-radius: 10px;
+      padding: 10px 18px;
+      font-weight: 500;
+      font-size: 13px;
+      cursor: pointer;
+      transition: all 0.25s ease;
+    }
+
+    .btn-toggle:hover {
+      background: rgba(99, 102, 241, 0.08);
+      border-color: rgba(99, 102, 241, 0.2);
+    }
+
+    .btn-toggle.active {
+      background: rgba(99, 102, 241, 0.15);
+      border-color: #6366f1;
+      color: #818cf8;
+      box-shadow: 0 0 12px rgba(99, 102, 241, 0.1);
+    }
+
+    select[multiple].input-field {
+      padding: 4px;
+    }
+
+    select[multiple].input-field option {
+      padding: 8px 10px;
+      border-radius: 6px;
+      margin: 2px 0;
+    }
+
+    select[multiple].input-field option:checked {
+      background: rgba(99, 102, 241, 0.2);
+      color: #818cf8;
+    }
   </style>
 </head>
 
@@ -250,7 +340,9 @@
   <!-- Header -->
   <div class="max-w-3xl mx-auto mb-8">
     <div class="flex items-center gap-3 mb-2">
-      <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-accent to-accent-dark flex items-center justify-center text-white font-bold text-lg">iM</div>
+      <div
+        class="w-10 h-10 rounded-xl bg-gradient-to-br from-accent to-accent-dark flex items-center justify-center text-white font-bold text-lg">
+        iM</div>
       <div>
         <h1 class="text-xl font-bold text-dark-100">Transição de Formulários</h1>
         <p class="text-xs text-dark-500">Meta Ads Lead Forms — iMotion Agency</p>
@@ -274,70 +366,88 @@
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
         <div class="search-dropdown">
           <label class="label">Cliente *</label>
-          <input type="text" class="input-field" id="clientSearch" placeholder="Carregando clientes..." autocomplete="off">
+          <input type="text" class="input-field" id="clientSearch" placeholder="Carregando clientes..."
+            autocomplete="off">
           <input type="hidden" id="clientSelect" value="">
           <div class="dropdown-list" id="clientDropdown"></div>
         </div>
-        <div>
-          <label class="label" for="assignee">Responsável pela Automação *</label>
-          <select class="input-field" id="assignee" required>
-            <option value="">Carregando membros...</option>
-          </select>
+        <div id="emailContainer" style="display: none;">
+          <label class="label" for="clientEmail">E-mail do Cliente (Make) *</label>
+          <input type="email" class="input-field" id="clientEmail" placeholder="Ex: contato@cliente.com">
         </div>
       </div>
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div>
-          <label class="label" for="goLiveDate">Prazo de Execução *</label>
-          <input type="date" class="input-field" id="goLiveDate" required>
-        </div>
-        <div>
-          <label class="label" for="priority">Prioridade *</label>
-          <select class="input-field" id="priority" required>
-            <option value="1" selected>🔴 Urgente</option>
-            <option value="2">🟡 Alta</option>
-            <option value="3">🔵 Normal</option>
-            <option value="4">🟢 Baixa</option>
-          </select>
-        </div>
-      </div>
+      <!-- Prazo e Prioridade foram removidos da UI e serão setados automaticamente -->
     </div>
 
-    <!-- Card 2: IDs Técnicos -->
+    <!-- Card 2: Identificadores Técnicos -->
     <div class="card p-6">
       <div class="flex items-center gap-3 mb-5">
         <div class="step-number bg-accent/20 text-accent">2</div>
         <h2 class="text-sm font-semibold text-dark-200 uppercase tracking-wider">Identificadores Técnicos</h2>
       </div>
+
+      <!-- Toggle: Transição vs Novo Form -->
+      <div class="flex gap-2 mb-6">
+        <button type="button" id="btnTransicao" class="btn-toggle active" onclick="setFormType('transicao')">🔄 Transição de Form</button>
+        <button type="button" id="btnNovoForm" class="btn-toggle" onclick="setFormType('novo')">🆕 Novo Form</button>
+      </div>
+      <input type="hidden" id="formType" value="transicao">
+
+      <!-- Meta Ads: Conta de Anúncio -->
+      <div class="mb-4">
+        <label class="label">Conta de Anúncio (Meta Ads)</label>
+        <select class="input-field" id="adAccountSelect" onchange="onAdAccountChange()">
+          <option value="">Carregando contas...</option>
+        </select>
+        <p class="text-xs text-dark-600 mt-1" id="metaStatus"></p>
+      </div>
+
+      <!-- Forms do Meta -->
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-        <div>
-          <label class="label" for="oldFormId">ID / Nome do Form Antigo *</label>
-          <input type="text" class="input-field" id="oldFormId" placeholder="Ex: REV-PJ V2 (ID: 123456)" required>
+        <div id="oldFormContainer">
+          <label class="label">Form Antigo *</label>
+          <div class="relative">
+            <select class="input-field" id="oldFormId"><option value="">Selecione a conta primeiro...</option></select>
+            <input type="text" id="oldFormManual" class="input-field hidden mt-2" placeholder="Ou digite o nome do form...">
+          </div>
         </div>
         <div>
-          <label class="label" for="newFormId">ID / Nome do Form Novo *</label>
-          <input type="text" class="input-field" id="newFormId" placeholder="Ex: REV-PJ V3 (ID: 789012)" required>
-        </div>
-      </div>
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div>
-          <label class="label" for="campaigns">Campanhas Afetadas</label>
-          <textarea class="input-field" id="campaigns" rows="3"
-            placeholder="Liste as campanhas afetadas, uma por linha..."></textarea>
-        </div>
-        <div>
-          <label class="label" for="adsets">Conjuntos de Anúncios Afetados</label>
-          <textarea class="input-field" id="adsets" rows="3"
-            placeholder="Liste os conjuntos de anúncios, um por linha..."></textarea>
+          <label class="label">Form Novo *</label>
+          <div class="relative">
+            <select class="input-field" id="newFormId"><option value="">Selecione a conta primeiro...</option></select>
+            <input type="text" id="newFormManual" class="input-field hidden mt-2" placeholder="Ou digite o nome do form...">
+          </div>
         </div>
       </div>
-      <p class="text-xs text-dark-500 mt-3 flex items-center gap-1"><span class="text-accent">ℹ️</span> A troca será aplicada em <strong class="text-dark-300">TODOS</strong> os anúncios dentro dos conjuntos mencionados.</p>
+      <div class="mb-6">
+        <button type="button" class="text-xs text-accent hover:underline" onclick="toggleManualForms()">Não encontrou? Digitar manualmente</button>
+      </div>
+
+      <!-- Campanhas e Conjuntos do Meta -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6 hidden" id="campaignsAdsetsContainer">
+        <div>
+          <label class="label">Campanhas Afetadas</label>
+          <div id="campaignsList" class="bg-[#202123] border border-white/10 rounded-xl p-3 min-h-[100px] max-h-[240px] overflow-y-auto space-y-2">
+             <div class="text-xs text-dark-500">Aguardando formulário...</div>
+          </div>
+          <p class="text-xs text-dark-600 mt-2">Essas campanhas serão marcadas na transição</p>
+        </div>
+        <div>
+          <label class="label">Conjuntos de Anúncios Afetados</label>
+          <div id="adsetsList" class="bg-[#202123] border border-white/10 rounded-xl p-3 min-h-[100px] max-h-[240px] overflow-y-auto space-y-2">
+             <div class="text-xs text-dark-500">Aguardando formulário...</div>
+          </div>
+        </div>
+      </div>
+      </div>
     </div>
 
     <!-- Card 3: Perguntas ou Configurações Alteradas -->
-    <div class="card p-6">
+    <div class="card p-6" id="cardAlteracoes">
       <div class="flex items-center gap-3 mb-5">
         <div class="step-number bg-accent/20 text-accent">3</div>
-        <h2 class="text-sm font-semibold text-dark-200 uppercase tracking-wider">Perguntas ou Configurações Alteradas</h2>
+        <h2 class="text-sm font-semibold text-dark-200 uppercase tracking-wider">Perguntas ou Configurações Alteradas
+        </h2>
       </div>
       <div id="mappingsContainer" class="space-y-3 mb-4"></div>
       <button type="button" class="btn-secondary" onclick="addMapping()">+ Adicionar Alteração</button>
@@ -388,12 +498,10 @@
   <script>
     // ==================== CONFIG ====================
     const CONFIG = {
-      API_TOKEN: 'pk_272628636_8QC0MP6Q08AYITUELGYBKB68SQSGIC2Q',
-      TEAM_ID: '3037111',
       SPACE_ID: '90141290843',
-      BASE_URL: 'https://api.clickup.com/api/v2',
-      SHEETS_LOG_URL: 'https://script.google.com/macros/s/AKfycbzP9Mn7wiMdh96Y-4Ir463UIDgcsBY6Ztn6Jt4K7Qlor7x12jrWOpayeMxzJs7gSdtk/exec',
-      RICARDO_ID: null  // Será preenchido automaticamente ao carregar membros
+      CU: '/api/clickup?path=',
+      META: '/api/meta',
+      SHEETS_LOG_URL: 'https://script.google.com/macros/s/AKfycbzP9Mn7wiMdh96Y-4Ir463UIDgcsBY6Ztn6Jt4K7Qlor7x12jrWOpayeMxzJs7gSdtk/exec'
     };
 
     const CHANGE_TYPES = [
@@ -401,133 +509,287 @@
       { value: 'remove_question', label: '➖ Remover pergunta' },
       { value: 'change_options', label: '🔄 Mudar opções da pergunta' },
       { value: 'add_remove_elimination', label: '🚫 Adicionar/Remover eliminação' },
-      { value: 'internal_config', label: '⚙️ Configuração interna' },
-      { value: 'new_form', label: '🆕 Forms novo (criado do zero)' }
+      { value: 'internal_config', label: '⚙️ Configuração interna' }
     ];
 
     // ==================== STATE ====================
     let clients = [];
-    let members = [];
     let mappings = [];
     let mappingCounter = 0;
     let selectedClientIdx = -1;
+    let metaForms = [];
+    let metaCampaigns = [];
+    let metaAdsets = [];
+    let adsMap = {};
+    let currentFilteredCamps = [];
+    let currentFilteredAdsets = [];
 
     // ==================== API HELPERS ====================
-    async function apiGet(path) {
-      const res = await fetch(`${CONFIG.BASE_URL}${path}`, {
-        headers: { 'Authorization': CONFIG.API_TOKEN }
-      });
-      if (!res.ok) throw new Error(`API Error ${res.status}: ${await res.text()}`);
-      return res.json();
+    async function cuGet(path) {
+      const r = await fetch(`${CONFIG.CU}${encodeURIComponent(path)}`);
+      if (!r.ok) throw new Error(`ClickUp ${r.status}: ${await r.text()}`);
+      return r.json();
     }
-
-    async function apiPost(path, body) {
-      const res = await fetch(`${CONFIG.BASE_URL}${path}`, {
-        method: 'POST',
-        headers: { 'Authorization': CONFIG.API_TOKEN, 'Content-Type': 'application/json' },
-        body: JSON.stringify(body)
+    async function cuPost(path, body) {
+      const r = await fetch(`${CONFIG.CU}${encodeURIComponent(path)}`, {
+        method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body)
       });
-      if (!res.ok) throw new Error(`API Error ${res.status}: ${await res.text()}`);
-      return res.json();
+      if (!r.ok) throw new Error(`ClickUp ${r.status}: ${await r.text()}`);
+      return r.json();
+    }
+    async function metaGet(action, params = {}) {
+      const qs = new URLSearchParams({ action, ...params }).toString();
+      const r = await fetch(`${CONFIG.META}?${qs}`);
+      if (!r.ok) { const e = await r.json().catch(() => ({})); throw new Error(e.error || `Meta ${r.status}`); }
+      return r.json();
     }
 
     // ==================== INIT ====================
     async function init() {
       try {
-        // Fetch folders (clients)
-        const data = await apiGet(`/space/${CONFIG.SPACE_ID}/folder?archived=false`);
+        const data = await cuGet(`/space/${CONFIG.SPACE_ID}/folder?archived=false`);
         const folders = data.folders.filter(f => f.name !== '[CS] Client Success');
         clients = [];
-        for (const folder of folders) {
-          const otimList = folder.lists.find(l => l.name.toLowerCase().includes('otimiza'));
-          if (otimList) {
-            clients.push({ name: folder.name, folderId: folder.id, otimizacoesListId: otimList.id, clientFieldValue: null });
-          }
+        for (const f of folders) {
+          const ol = f.lists.find(l => l.name.toLowerCase().includes('otimiza'));
+          if (ol) clients.push({ name: f.name, folderId: f.id, otimizacoesListId: ol.id, clientFieldValue: null });
         }
         clients.sort((a, b) => a.name.localeCompare(b.name, 'pt-BR'));
         document.getElementById('clientSearch').placeholder = 'Buscar cliente...';
         initSearchDropdown();
-
-        // Fetch workspace members
-        const spaceData = await apiGet(`/space/${CONFIG.SPACE_ID}`);
-        members = (spaceData.members || []).map(m => ({ id: m.user.id, name: m.user.username || m.user.email || `User ${m.user.id}`, avatar: m.user.profilePicture }));
-        console.log('Membros carregados (ID | Nome):');
-        members.forEach(m => console.log(`  ${m.id} | ${m.name}`));
-
-        // Auto-detectar Ricardo
-        const ricardo = members.find(m => m.name.toLowerCase().includes('ricardo'));
-        if (ricardo) {
-          CONFIG.RICARDO_ID = parseInt(ricardo.id);
-          console.log(`Ricardo encontrado: ID ${ricardo.id} (${ricardo.name})`);
-        } else {
-          console.warn('Ricardo não encontrado na lista de membros!');
-        }
-
-        const assigneeSelect = document.getElementById('assignee');
-        assigneeSelect.innerHTML = '<option value="">Selecione o responsável...</option>';
-        members.forEach(m => { assigneeSelect.innerHTML += `<option value="${m.id}">${m.name}</option>`; });
-
-        setStatus('success', `Conectado — ${clients.length} clientes, ${members.length} membros`);
+        setStatus('success', `ClickUp OK — ${clients.length} clientes`);
       } catch (err) {
-        setStatus('error', `Erro ao conectar: ${err.message}`);
+        setStatus('error', `Erro ClickUp: ${err.message}`);
         console.error(err);
       }
+
+      // Meta Ads — carrega contas de anúncio
+      loadMetaAdAccounts();
+
       addMapping();
-      setTomorrow();
     }
+
+    // ==================== META ADS ====================
+    async function loadMetaAdAccounts() {
+      const sel = document.getElementById('adAccountSelect');
+      const st = document.getElementById('metaStatus');
+      try {
+        const pages = await metaGet('pages');
+        const accounts = await metaGet('adaccounts');
+        sel.innerHTML = '<option value="">Selecione a conta de anúncio...</option>';
+        accounts.forEach(a => { sel.innerHTML += `<option value="${a.account_id}" data-name="${a.name}">${a.name} (${a.account_id})</option>`; });
+        // Guardar pages no state pra buscar forms
+        window._metaPages = pages;
+        st.textContent = `✅ ${accounts.length} contas encontradas`;
+      } catch (err) {
+        sel.innerHTML = '<option value="">⚠️ Meta não conectado</option>';
+        st.textContent = `Meta Ads indisponível: ${err.message}`;
+        console.warn('Meta Ads:', err);
+      }
+    }
+
+    async function onAdAccountChange() {
+      const accountId = document.getElementById('adAccountSelect').value;
+      if (!accountId) return;
+      const st = document.getElementById('metaStatus');
+      st.textContent = '⏳ Carregando dados da conta...';
+
+      try {
+        // Ocultar campanhas inicialmente
+        document.getElementById('campaignsAdsetsContainer').classList.add('hidden');
+
+        // Dispara fetch inicial de campanhas, adsets e mapa em paralelo
+        const [camps, adsetsData, map] = await Promise.all([
+          metaGet('campaigns', { account_id: accountId }),
+          metaGet('adsets', { account_id: accountId }),
+          metaGet('ads_map', { account_id: accountId }).catch(() => ({}))
+        ]);
+
+        metaCampaigns = camps || [];
+        metaAdsets = adsetsData || [];
+        adsMap = map || {};
+
+        // Extrair page_ids dos adsets (garantido para campanhas de lead)
+        const adsetPages = new Set();
+        metaAdsets.forEach(a => {
+           if (a.promoted_object && a.promoted_object.page_id) {
+               adsetPages.add(a.promoted_object.page_id);
+           }
+        });
+
+        // Processa pages para forms
+        let formsPromises = [];
+        if (window._metaPages && window._metaPages.length > 0) {
+          for (const page of window._metaPages) {
+            // SÓ BUSCA SE A PÁGINA ESTIVER NA LISTA DAS PÁGINAS PROMOVIDAS PELA CONTA (ou se não houver nenhuma)
+            if (adsetPages.size === 0 || adsetPages.has(page.id)) {
+              formsPromises.push(metaGet('forms', { page_id: page.id, page_token: page.access_token })
+                .then(forms => forms.map(f => ({ ...f, pageName: page.name })))
+                .catch(e => { console.warn(`Forms página ${page.name}:`, e); return []; })
+              );
+            }
+          }
+        }
+        
+        const formsArrs = await Promise.all(formsPromises);
+        metaForms = (formsArrs || []).flat();
+
+        renderForms();
+        renderCampaignsAndAdsets('');
+
+        st.textContent = `✅ ${metaCampaigns.length} campanhas, ${metaAdsets.length} conjuntos, ${metaForms.length} forms`;
+      } catch (err) {
+        st.textContent = `Erro ao carregar: ${err.message}`;
+        console.error(err);
+      }
+    }
+
+    // ==================== DYNAMIC RENDER ====================
+    function renderForms() {
+      const formSel1 = document.getElementById('oldFormId');
+      const formSel2 = document.getElementById('newFormId');
+      
+      const oldVal1 = formSel1.value;
+      const oldVal2 = formSel2.value;
+      
+      let clientName = '';
+      if (selectedClientIdx >= 0) {
+        // Tenta usar o valor customizado ou o nome base
+        clientName = (clients[selectedClientIdx].clientFieldValue || clients[selectedClientIdx].name).toLowerCase();
+      }
+
+      // Filtrar forms por Campanhas Selecionadas e pelo nome do cliente
+      let sortedForms = [...metaForms];
+      
+      // Ocultar forms que não são do cliente selecionado (se encontrarmos matches)
+      if (clientName) {
+        const words = clientName.split(' ').filter(w => w.length > 3); // pega palavras chave
+        
+        // Verifica quais forms dão match no nome do form ou no nome da página
+        const matchedForms = sortedForms.filter(f => {
+          const fName = f.name.toLowerCase();
+          const pName = (f.pageName || '').toLowerCase();
+          return words.some(w => fName.includes(w) || pName.includes(w));
+        });
+
+        // Se encontrou forms que pertencem a esse cliente, mostramos APENAS eles.
+        // Se não encontrou nenhum match (nome pode ser muito diferente), deixamos todos por segurança, mas ordenamos.
+        if (matchedForms.length > 0) {
+          sortedForms = matchedForms;
+        } else {
+          sortedForms.sort((a, b) => {
+            const aName = a.name.toLowerCase();
+            const bName = b.name.toLowerCase();
+            const aMatch = words.some(w => aName.includes(w)) ? 1 : 0;
+            const bMatch = words.some(w => bName.includes(w)) ? 1 : 0;
+            return bMatch - aMatch;
+          });
+        }
+      }
+
+      formSel1.innerHTML = '<option value="">Selecione o form antigo...</option>';
+      formSel2.innerHTML = '<option value="">Selecione o form novo...</option>';
+      sortedForms.forEach(f => {
+        const label = `${f.name} (${f.pageName})`;
+        formSel1.innerHTML += `<option value="${f.id}" data-name="${f.name}">${label}</option>`;
+        formSel2.innerHTML += `<option value="${f.id}" data-name="${f.name}">${label}</option>`;
+      });
+
+      if (oldVal1) formSel1.value = oldVal1;
+      if (oldVal2) formSel2.value = oldVal2;
+    }
+
+    function renderCampaignsAndAdsets(formId) {
+      const campSel = document.getElementById('campaignsList');
+      const adsSel = document.getElementById('adsetsList');
+      const container = document.getElementById('campaignsAdsetsContainer');
+      
+      currentFilteredCamps = [];
+      currentFilteredAdsets = [];
+      
+      // Mostrar o container se tem form selecionado ou se está no modo manual
+      if (formId) {
+        container.classList.remove('hidden');
+      } else {
+        // Se desmarcou, oculta
+        container.classList.add('hidden');
+      }
+
+      if (formId && adsMap[formId]) {
+        const { campaigns, adsets } = adsMap[formId];
+        currentFilteredCamps = metaCampaigns.filter(c => campaigns.includes(c.id));
+        currentFilteredAdsets = metaAdsets.filter(a => adsets.includes(a.id));
+      }
+      
+      // Remonta as opções selecionando ou não
+      campSel.innerHTML = '';
+      if (currentFilteredCamps.length === 0) {
+         campSel.innerHTML = '<div class="text-xs text-dark-500 py-2">(Nenhuma campanha encontrada ou o formulário não está em uso)</div>';
+      } else {
+         currentFilteredCamps.forEach(c => { 
+            campSel.innerHTML += `<div class="bg-[#343541] text-[#ececf1] text-[13px] py-2 px-3 rounded-lg border border-white/5 break-words">${c.name}</div>`; 
+         });
+      }
+      
+      adsSel.innerHTML = '';
+      if (currentFilteredAdsets.length === 0) {
+         adsSel.innerHTML = '<div class="text-xs text-dark-500 py-2">(Nenhum conjunto encontrado)</div>';
+      } else {
+         currentFilteredAdsets.forEach(a => { 
+            adsSel.innerHTML += `<div class="bg-[#343541] text-[#ececf1] text-[13px] py-2 px-3 rounded-lg border border-white/5 break-words">${a.name}</div>`; 
+         });
+      }
+    }
+
+    // Bind onChange nos formulários
+    document.addEventListener('DOMContentLoaded', () => {
+      // oldFormId apenas para conferência, não muda campanhas
+      document.getElementById('oldFormId').addEventListener('change', () => {});
+      
+      // newFormId é quem dita as campanhas e conjuntos agora
+      document.getElementById('newFormId').addEventListener('change', (e) => {
+        renderCampaignsAndAdsets(e.target.value);
+      });
+      
+      // Patch pra modo manual (se digitar algo, assume MANUAL pra mostrar campanhas)
+      document.getElementById('oldFormManual').addEventListener('input', () => {});
+      
+      document.getElementById('newFormManual').addEventListener('input', (e) => {
+        if(e.target.value.length > 2) renderCampaignsAndAdsets('MANUAL');
+      });
+    });
 
     // ==================== DATE HELPERS ====================
-    function setTomorrow() {
-      const d = new Date();
-      d.setDate(d.getDate() + 1);
-      const yyyy = d.getFullYear();
-      const mm = String(d.getMonth() + 1).padStart(2, '0');
-      const dd = String(d.getDate()).padStart(2, '0');
-      document.getElementById('goLiveDate').value = `${yyyy}-${mm}-${dd}`;
-    }
-
-    function formatDateBR(isoStr) {
-      // Converte YYYY-MM-DD para DD/MM/AAAA
-      const [yyyy, mm, dd] = isoStr.split('-');
-      return `${dd}/${mm}/${yyyy}`;
-    }
+    function formatDateBR(s) { const [y, m, d] = s.split('-'); return `${d}/${m}/${y}`; }
 
     // ==================== SEARCHABLE DROPDOWN ====================
     function initSearchDropdown() {
       const input = document.getElementById('clientSearch');
       const dropdown = document.getElementById('clientDropdown');
       const hidden = document.getElementById('clientSelect');
-
       function renderList(filter = '') {
-        const filtered = clients.map((c, i) => ({...c, idx: i})).filter(c => c.name.toLowerCase().includes(filter.toLowerCase()));
-        dropdown.innerHTML = filtered.length ? filtered.map(c => `<div class="dropdown-item" data-idx="${c.idx}">${c.name}</div>`).join('') : '<div class="dropdown-empty">Nenhum cliente encontrado</div>';
+        const f = clients.map((c, i) => ({ ...c, idx: i })).filter(c => c.name.toLowerCase().includes(filter.toLowerCase()));
+        dropdown.innerHTML = f.length ? f.map(c => `<div class="dropdown-item" data-idx="${c.idx}">${c.name}</div>`).join('') : '<div class="dropdown-empty">Nenhum cliente encontrado</div>';
       }
-
       input.addEventListener('focus', () => { renderList(input.value); dropdown.classList.add('open'); });
       input.addEventListener('input', () => { renderList(input.value); dropdown.classList.add('open'); hidden.value = ''; selectedClientIdx = -1; });
-
       dropdown.addEventListener('click', (e) => {
-        const item = e.target.closest('.dropdown-item');
-        if (!item) return;
+        const item = e.target.closest('.dropdown-item'); if (!item) return;
         const idx = parseInt(item.dataset.idx);
-        input.value = clients[idx].name;
-        hidden.value = idx;
-        selectedClientIdx = idx;
-        dropdown.classList.remove('open');
-        fetchClientFieldValue(idx);
+        input.value = clients[idx].name; hidden.value = idx; selectedClientIdx = idx;
+        dropdown.classList.remove('open'); 
+        fetchClientFieldValue(idx).then(() => { if (metaForms.length) renderForms(); });
       });
-
       document.addEventListener('click', (e) => { if (!e.target.closest('.search-dropdown')) dropdown.classList.remove('open'); });
     }
-
     async function fetchClientFieldValue(idx) {
       try {
-        const data = await apiGet(`/list/${clients[idx].otimizacoesListId}/task?page=0&limit=1`);
+        const data = await cuGet(`/list/${clients[idx].otimizacoesListId}/task?page=0&limit=1`);
         if (data.tasks && data.tasks.length > 0) {
           const cf = data.tasks[0].custom_fields?.find(f => f.name === 'Cliente');
           if (cf && cf.value) clients[idx].clientFieldValue = cf.value;
         }
-      } catch (e) { console.warn('Não foi possível buscar o nome do cliente:', e); }
+      } catch (e) { console.warn('Campo cliente:', e); }
     }
 
     function setStatus(type, text) {
@@ -535,6 +797,24 @@
       const label = document.getElementById('apiStatusText');
       dot.className = 'status-dot ' + (type === 'success' ? 'bg-success' : type === 'error' ? 'bg-danger' : 'bg-warn');
       label.textContent = text;
+    }
+
+    // ==================== FORM TYPE TOGGLE ====================
+    function setFormType(type) {
+      document.getElementById('formType').value = type;
+      document.getElementById('btnTransicao').classList.toggle('active', type === 'transicao');
+      document.getElementById('btnNovoForm').classList.toggle('active', type === 'novo');
+      const isNovo = type === 'novo';
+      document.getElementById('oldFormContainer').style.display = isNovo ? 'none' : 'block';
+      document.getElementById('cardAlteracoes').style.display = isNovo ? 'none' : 'block';
+      
+      // E-mail só aparece em Novo Form
+      document.getElementById('emailContainer').style.display = isNovo ? 'block' : 'none';
+      if(isNovo) {
+        document.getElementById('clientEmail').setAttribute('required', 'true');
+      } else {
+        document.getElementById('clientEmail').removeAttribute('required');
+      }
     }
 
     // ==================== ALTERAÇÕES (MAPPINGS) ====================
@@ -556,13 +836,11 @@
   `;
       container.appendChild(row);
     }
-
     function removeMapping(id) {
       mappings = mappings.filter(m => m !== id);
       const el = document.getElementById(`mapping-${id}`);
       if (el) { el.style.opacity = '0'; el.style.transform = 'translateY(-8px)'; setTimeout(() => el.remove(), 200); }
     }
-
     function getMappings() {
       const result = [];
       for (const id of mappings) {
@@ -576,79 +854,113 @@
       return result;
     }
 
+    // ==================== HELPERS: Selects & Manual Fallback ====================
+    let isManualForms = false;
+    function toggleManualForms() {
+      isManualForms = !isManualForms;
+      const oldSelect = document.getElementById('oldFormId');
+      const newSelect = document.getElementById('newFormId');
+      const oldManual = document.getElementById('oldFormManual');
+      const newManual = document.getElementById('newFormManual');
+      
+      if (isManualForms) {
+        oldSelect.classList.add('hidden');
+        newSelect.classList.add('hidden');
+        oldManual.classList.remove('hidden');
+        newManual.classList.remove('hidden');
+      } else {
+        oldSelect.classList.remove('hidden');
+        newSelect.classList.remove('hidden');
+        oldManual.classList.add('hidden');
+        newManual.classList.add('hidden');
+      }
+    }
+
+    function getSelectedTexts(selectEl) {
+      return [...selectEl.selectedOptions].map(o => o.textContent).filter(t => t);
+    }
+
+    function getFormLabel(selectId, manualId) {
+      if (isManualForms) {
+        return document.getElementById(manualId).value.trim();
+      }
+      const selectEl = document.getElementById(selectId);
+      const opt = selectEl.selectedOptions[0];
+      return opt && opt.value ? (opt.dataset.name || opt.textContent) : '';
+    }
+
     // ==================== SUBMIT ====================
     async function submitForm() {
       const btn = document.getElementById('submitBtn');
       const clientIdx = document.getElementById('clientSelect').value;
-      const goLive = document.getElementById('goLiveDate').value;
-      const priority = document.getElementById('priority').value;
-      const oldForm = document.getElementById('oldFormId').value.trim();
-      const newForm = document.getElementById('newFormId').value.trim();
-      const campaigns = document.getElementById('campaigns').value.trim();
-      const adsets = document.getElementById('adsets').value.trim();
+      const clientEmail = document.getElementById('clientEmail').value.trim();
+      const isNovo = document.getElementById('formType').value === 'novo';
+
+      // Auto-set Prioridade Urgente (1) e Prazo para Amanhã
+      const priority = 1; 
+      const d = new Date(); d.setDate(d.getDate() + 1);
+      const yyyy = d.getFullYear(), mm = String(d.getMonth() + 1).padStart(2, '0'), dd = String(d.getDate()).padStart(2, '0');
+      const goLive = `${yyyy}-${mm}-${dd}`;
+
+      const oldForm = getFormLabel('oldFormId', 'oldFormManual');
+      const newForm = getFormLabel('newFormId', 'newFormManual');
+
+      const campTexts = currentFilteredCamps.map(c => c.name);
+      const adsetTexts = currentFilteredAdsets.map(a => a.name);
       const obs = document.getElementById('observations').value.trim();
       const mapData = getMappings();
 
-      if (clientIdx === '' || !goLive || !oldForm || !newForm) {
+      if (clientIdx === '' || (isNovo && !clientEmail) || !newForm || (!isNovo && !oldForm)) {
         showToast('Preencha todos os campos obrigatórios (*)', 'error');
         return;
       }
 
-      const dueDate = new Date(goLive + 'T23:59:59');
       const goLiveBR = formatDateBR(goLive);
-
       const client = clients[parseInt(clientIdx)];
       btn.disabled = true;
       btn.textContent = '⏳ Criando task...';
 
-      let desc = `📋 IDENTIFICADORES TÉCNICOS\n`;
-      desc += `━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n`;
-      desc += `▸ Form Antigo: ${oldForm}\n`;
-      desc += `▸ Form Novo:   ${newForm}\n`;
-
-      if (campaigns) {
-        desc += `\n🎯 CAMPANHAS AFETADAS\n`;
-        desc += `━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n`;
-        campaigns.split('\n').filter(l => l.trim()).forEach(l => { desc += `▸ ${l.trim()}\n`; });
+      // ── Montar descrição com markdown (--- = divider no ClickUp) ──
+      let md = `## 📋 IDENTIFICADORES TÉCNICOS\n\n---\n\n`;
+      if (!isNovo) {
+         md += `▸ **Form Antigo:** ${oldForm}\n`;
+         md += `▸ **Form Novo:** ${newForm}\n`;
+      } else {
+         md += `▸ **Form Novo:** ${newForm}\n`;
+         md += `▸ **E-mail do Cliente:** ${clientEmail}\n`;
       }
 
-      if (adsets) {
-        desc += `\n📦 CONJUNTOS DE ANÚNCIOS AFETADOS\n`;
-        desc += `━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n`;
-        adsets.split('\n').filter(l => l.trim()).forEach(l => { desc += `▸ ${l.trim()}\n`; });
-        desc += `⚠️ A troca será aplicada em TODOS os anúncios dentro dos conjuntos acima.\n`;
+      if (campTexts.length > 0) {
+        md += `\n## 🎯 CAMPANHAS AFETADAS\n\n---\n\n`;
+        campTexts.forEach(c => { md += `▸ ${c}\n`; });
       }
 
-      if (mapData.length > 0) {
-        desc += `\n🔧 PERGUNTAS / CONFIGURAÇÕES ALTERADAS\n`;
-        desc += `━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n`;
-        mapData.forEach(m => { desc += `▸ [${m.typeLabel}] — ${m.description}\n`; });
+      if (adsetTexts.length > 0) {
+        md += `\n## 📦 CONJUNTOS DE ANÚNCIOS AFETADOS\n\n---\n\n`;
+        adsetTexts.forEach(a => { md += `▸ ${a}\n`; });
+        if (!isNovo) md += `\n⚠️ A troca será aplicada em **TODOS** os anúncios dentro dos conjuntos acima.\n`;
+      }
+
+      if (!isNovo && mapData.length > 0) {
+        md += `\n## 🔧 PERGUNTAS / CONFIGURAÇÕES ALTERADAS\n\n---\n\n`;
+        mapData.forEach(m => { md += `▸ **[${m.typeLabel}]** — ${m.description}\n`; });
       }
 
       if (obs) {
-        desc += `\n📝 OBSERVAÇÕES\n`;
-        desc += `━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n`;
-        desc += `${obs}\n`;
+        md += `\n## 📝 OBSERVAÇÕES\n\n---\n\n${obs}\n`;
       }
 
-      desc += `\n─────────────────────────────\n⚡ Task gerada automaticamente pelo Formulário de Transição — iMotion Agency`;
+      md += `\n---\n\n⚡ *Task gerada automaticamente pelo Formulário de ${isNovo ? 'Criação' : 'Transição'} — iMotion Agency*`;
 
       const dueMs = new Date(goLive + 'T23:59:59').getTime();
       const clientName = client.clientFieldValue || client.name;
-
-      const assigneeId = document.getElementById('assignee').value;
-      if (!assigneeId) { showToast('Selecione o responsável pela automação', 'error'); btn.disabled = false; btn.textContent = '🚀 Criar Task de Automação'; return; }
-      const assigneeName = members.find(m => m.id == assigneeId)?.name || '';
-
-      // Sempre incluir Ricardo + o selecionado (sem duplicar)
-      const assigneeIds = new Set([parseInt(assigneeId)]);
-      if (CONFIG.RICARDO_ID) assigneeIds.add(CONFIG.RICARDO_ID);
+      const taskName = isNovo ? 'Criação de Formulário - Meta Ads' : 'Transição de Formulários - Meta Ads';
 
       const taskBody = {
-        name: 'Transição de Formulários - Meta Ads',
-        description: desc,
-        assignees: [...assigneeIds],
-        tags: ['transicao-form'],
+        name: taskName,
+        markdown_description: md,
+        assignees: [],
+        tags: [isNovo ? 'novo-form' : 'transicao-form'],
         priority: parseInt(priority),
         due_date: dueMs,
         due_date_time: false,
@@ -660,35 +972,42 @@
       };
 
       try {
-        const task = await apiPost(`/list/${client.otimizacoesListId}/task`, taskBody);
-
-        const checklist = await apiPost(`/task/${task.id}/checklist`, { name: 'Execução da Transição' });
-        const checkItems = [
-          'Alterar o gatilho de forms na automação do Make para o novo formulário (seguindo nomenclatura padrão)',
-          'Desconectar o trigger do restante da automação e disparar um teste no Meta for Business',
-          'Reconectar o Trigger no restante da automação',
-          'Reconfigurar os novos campos em TODOS os módulos do Make (Sheets, HTTP Request, HTML do Email, Kommo etc)',
-          'Salvar tudo e disparar um teste final',
-          'Apagar o dado do teste da planilha de leads do cliente',
-          'Trocar o forms novo nos anúncios indicados pelo gestor dentro da campanha do cliente'
-        ];
-        for (const item of checkItems) { await apiPost(`/checklist/${checklist.checklist.id}/checklist_item`, { name: item }); }
+        const task = await cuPost(`/list/${client.otimizacoesListId}/task`, taskBody);
+        const checklist = await cuPost(`/task/${task.id}/checklist`, { name: isNovo ? 'Passos de Execução' : 'Execução da Transição' });
+        
+        let checkItems = [];
+        if (isNovo) {
+          checkItems = [
+            'Seguir passos do checklist: https://docs.google.com/document/d/1Pnwqp6WllLZssFRFKAqd45LTviCy4l1XiATa9NM1Ie0/edit?usp=sharing'
+          ];
+        } else {
+          checkItems = [
+            'Alterar o gatilho de forms na automação do Make para o novo formulário (seguindo nomenclatura padrão)',
+            'Desconectar o trigger do restante da automação e disparar um teste no Meta for Business',
+            'Reconectar o Trigger no restante da automação',
+            'Reconfigurar os novos campos em TODOS os módulos do Make (Sheets, HTTP Request, HTML do Email, Kommo etc)',
+            'Salvar tudo e disparar um teste final',
+            'Apagar o dado do teste da planilha de leads do cliente',
+            'Trocar o forms novo nos anúncios indicados pelo gestor dentro da campanha do cliente'
+          ];
+        }
+        for (const item of checkItems) { await cuPost(`/checklist/${checklist.checklist.id}/checklist_item`, { name: item }); }
 
         const taskUrl = `https://app.clickup.com/t/${task.id}`;
 
         logToSheets({
           timestamp: new Date().toLocaleString('pt-BR'),
           cliente: clientName,
-          formAntigo: oldForm,
+          email: clientEmail,
+          formAntigo: isNovo ? '-' : oldForm,
           formNovo: newForm,
-          campanhas: campaigns,
-          conjuntos: adsets,
-          alteracoes: mapData.length > 0 ? mapData.map(m => `[${m.typeLabel}] ${m.description}`).join('; ') : '',
-          responsavel: assigneeName,
-          prioridade: ['','🔴 Urgente','🟡 Alta','🔵 Normal','🟢 Baixa'][priority],
+          campanhas: campTexts.join('; '),
+          conjuntos: adsetTexts.join('; '),
+          alteracoes: (!isNovo && mapData.length > 0) ? mapData.map(m => `[${m.typeLabel}] ${m.description}`).join('; ') : '-',
+          responsavel: 'Ricardo',
+          prioridade: ['', '🔴 Urgente', '🟡 Alta', '🔵 Normal', '🟢 Baixa'][priority],
           prazo: goLiveBR,
-          taskUrl: taskUrl,
-          taskId: task.id
+          taskUrl, taskId: task.id
         });
 
         showModal('✅ Task Criada com Sucesso!', `
@@ -698,10 +1017,10 @@
           <p class="text-dark-200 text-sm">${client.name} → Otimizações</p>
         </div>
         <div class="space-y-2 text-sm">
-          <p class="text-dark-400">Nome: <span class="text-dark-200">${taskBody.name}</span></p>
+          <p class="text-dark-400">Nome: <span class="text-dark-200">${taskName}</span></p>
           <p class="text-dark-400">Cliente: <span class="text-dark-200">${clientName}</span></p>
-          <p class="text-dark-400">Área: <span class="text-dark-200">AUT</span></p>
-          <p class="text-dark-400">Prioridade: <span class="text-dark-200">${['','🔴 Urgente','🟡 Alta','🔵 Normal','🟢 Baixa'][priority]}</span></p>
+          <p class="text-dark-400">Tipo: <span class="text-dark-200">${isNovo ? '🆕 Novo Form' : '🔄 Transição'}</span></p>
+          <p class="text-dark-400">Prioridade: <span class="text-dark-200">${['', '🔴 Urgente', '🟡 Alta', '🔵 Normal', '🟢 Baixa'][priority]}</span></p>
           <p class="text-dark-400">Prazo: <span class="text-dark-200">${goLiveBR}</span></p>
         </div>
         <a href="${taskUrl}" target="_blank" class="btn-primary inline-block text-center text-sm no-underline" style="text-decoration:none;">Abrir Task no ClickUp ↗</a>
@@ -710,13 +1029,30 @@
 
         showToast('Task criada com sucesso!', 'success');
         document.getElementById('mainForm').reset();
+        
+        // Reset Custom UI & State
         document.getElementById('clientSearch').value = '';
         document.getElementById('clientSelect').value = '';
         selectedClientIdx = -1;
+        
+        document.getElementById('oldFormId').innerHTML = '<option value="">Selecione a conta primeiro...</option>';
+        document.getElementById('newFormId').innerHTML = '<option value="">Selecione a conta primeiro...</option>';
+        document.getElementById('metaStatus').textContent = '';
+        
+        document.getElementById('campaignsList').innerHTML = '<div class="text-xs text-dark-500">Aguardando formulário...</div>';
+        document.getElementById('adsetsList').innerHTML = '<div class="text-xs text-dark-500">Aguardando formulário...</div>';
+        document.getElementById('campaignsAdsetsContainer').classList.add('hidden');
+        currentFilteredCamps = [];
+        currentFilteredAdsets = [];
+        metaForms = [];
+        metaCampaigns = [];
+        metaAdsets = [];
+        adsMap = {};
+
         document.getElementById('mappingsContainer').innerHTML = '';
         mappings = [];
         addMapping();
-        setTomorrow();
+        setFormType('transicao');
 
       } catch (err) {
         console.error(err);
@@ -732,15 +1068,11 @@
     async function logToSheets(data) {
       try {
         await fetch(CONFIG.SHEETS_LOG_URL, {
-          method: 'POST',
-          mode: 'no-cors',
+          method: 'POST', mode: 'no-cors',
           headers: { 'Content-Type': 'text/plain;charset=utf-8' },
           body: JSON.stringify(data)
         });
-        console.log('Log enviado para Google Sheets');
-      } catch (e) {
-        console.warn('Falha ao logar no Sheets:', e);
-      }
+      } catch (e) { console.warn('Sheets log:', e); }
     }
 
     // ==================== UI HELPERS ====================
@@ -748,16 +1080,12 @@
       document.getElementById('modalTitle').textContent = title;
       document.getElementById('modalBody').innerHTML = html;
       const m = document.getElementById('modal');
-      m.classList.remove('hidden');
-      m.classList.add('flex');
+      m.classList.remove('hidden'); m.classList.add('flex');
     }
-
     function closeModal() {
       const m = document.getElementById('modal');
-      m.classList.add('hidden');
-      m.classList.remove('flex');
+      m.classList.add('hidden'); m.classList.remove('flex');
     }
-
     function showToast(msg, type) {
       const c = document.getElementById('toastContainer');
       const t = document.createElement('div');

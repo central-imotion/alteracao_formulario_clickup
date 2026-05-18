@@ -427,16 +427,21 @@
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6 hidden" id="campaignsAdsetsContainer">
         <div>
           <label class="label">Campanhas Afetadas</label>
-          <div id="campaignsList" class="bg-[#202123] border border-white/10 rounded-xl p-3 min-h-[100px] max-h-[240px] overflow-y-auto space-y-2">
-             <div class="text-xs text-dark-500">Aguardando formulário...</div>
+          <input type="text" id="campSearch" class="input-field mb-2" style="padding: 8px 12px; font-size: 13px;" placeholder="Pesquisar campanha..." oninput="renderCampaignsList(this.value)">
+          <div id="campaignsList" class="bg-[#202123] border border-white/10 rounded-xl p-3 min-h-[100px] max-h-[160px] overflow-y-auto space-y-1">
+             <div class="text-xs text-dark-500">Aguardando conta de anúncio...</div>
           </div>
-          <p class="text-xs text-dark-600 mt-2">Essas campanhas serão marcadas na transição</p>
+          
+          <div id="selectedCampsContainer" class="mt-3 flex flex-wrap gap-2"></div>
         </div>
         <div>
           <label class="label">Conjuntos de Anúncios Afetados</label>
-          <div id="adsetsList" class="bg-[#202123] border border-white/10 rounded-xl p-3 min-h-[100px] max-h-[240px] overflow-y-auto space-y-2">
-             <div class="text-xs text-dark-500">Aguardando formulário...</div>
+          <input type="text" id="adsetSearch" class="input-field mb-2" style="padding: 8px 12px; font-size: 13px;" placeholder="Pesquisar conjunto..." oninput="renderAdsetsList(this.value)">
+          <div id="adsetsList" class="bg-[#202123] border border-white/10 rounded-xl p-3 min-h-[100px] max-h-[160px] overflow-y-auto space-y-1">
+             <div class="text-xs text-dark-500">Aguardando conta de anúncio...</div>
           </div>
+          
+          <div id="selectedAdsetsContainer" class="mt-3 flex flex-wrap gap-2"></div>
         </div>
       </div>
       </div>
@@ -520,9 +525,11 @@
     let metaForms = [];
     let metaCampaigns = [];
     let metaAdsets = [];
-    let adsMap = {};
-    let currentFilteredCamps = [];
-    let currentFilteredAdsets = [];
+    let adsMap = {}; // Mantido se ainda for útil para outra coisa
+    
+    // Novas variáveis para armazenar seleção manual
+    let selectedCamps = new Set();
+    let selectedAdsets = new Set();
 
     // ==================== API HELPERS ====================
     async function cuGet(path) {
@@ -635,7 +642,21 @@
         metaForms = (formsArrs || []).flat();
 
         renderForms();
-        renderCampaignsAndAdsets('');
+        
+        // Limpar seleções e filtros anteriores
+        selectedCamps.clear();
+        selectedAdsets.clear();
+        document.getElementById('campSearch').value = '';
+        document.getElementById('adsetSearch').value = '';
+        
+        renderCampaignsList();
+        renderAdsetsList();
+        renderSelectedItems();
+        
+        const isNovo = document.getElementById('formType').value === 'novo';
+        if (!isNovo) {
+          document.getElementById('campaignsAdsetsContainer').classList.remove('hidden');
+        }
 
         st.textContent = `✅ ${metaCampaigns.length} campanhas, ${metaAdsets.length} conjuntos, ${metaForms.length} forms`;
       } catch (err) {
@@ -699,64 +720,105 @@
       if (oldVal2) formSel2.value = oldVal2;
     }
 
-    function renderCampaignsAndAdsets(formId) {
+    function renderCampaignsList(filter = '') {
       const campSel = document.getElementById('campaignsList');
-      const adsSel = document.getElementById('adsetsList');
-      const container = document.getElementById('campaignsAdsetsContainer');
+      const filtered = metaCampaigns.filter(c => c.name.toLowerCase().includes(filter.toLowerCase()));
       
-      currentFilteredCamps = [];
-      currentFilteredAdsets = [];
-      
-      // Mostrar o container se tem form selecionado ou se está no modo manual
-      if (formId) {
-        container.classList.remove('hidden');
-      } else {
-        // Se desmarcou, oculta
-        container.classList.add('hidden');
-      }
-
-      if (formId && adsMap[formId]) {
-        const { campaigns, adsets } = adsMap[formId];
-        currentFilteredCamps = metaCampaigns.filter(c => campaigns.includes(c.id));
-        currentFilteredAdsets = metaAdsets.filter(a => adsets.includes(a.id));
-      }
-      
-      // Remonta as opções selecionando ou não
       campSel.innerHTML = '';
-      if (currentFilteredCamps.length === 0) {
-         campSel.innerHTML = '<div class="text-xs text-dark-500 py-2">(Nenhuma campanha encontrada ou o formulário não está em uso)</div>';
+      if (filtered.length === 0) {
+         campSel.innerHTML = '<div class="text-xs text-dark-500 py-2">(Nenhuma campanha encontrada)</div>';
       } else {
-         currentFilteredCamps.forEach(c => { 
-            campSel.innerHTML += `<div class="bg-[#343541] text-[#ececf1] text-[13px] py-2 px-3 rounded-lg border border-white/5 break-words">${c.name}</div>`; 
-         });
-      }
-      
-      adsSel.innerHTML = '';
-      if (currentFilteredAdsets.length === 0) {
-         adsSel.innerHTML = '<div class="text-xs text-dark-500 py-2">(Nenhum conjunto encontrado)</div>';
-      } else {
-         currentFilteredAdsets.forEach(a => { 
-            adsSel.innerHTML += `<div class="bg-[#343541] text-[#ececf1] text-[13px] py-2 px-3 rounded-lg border border-white/5 break-words">${a.name}</div>`; 
+         filtered.forEach(c => { 
+            const isChecked = selectedCamps.has(c.id) ? 'checked' : '';
+            campSel.innerHTML += `
+              <label class="flex items-start gap-2 p-2 hover:bg-white/5 rounded-lg cursor-pointer transition-colors">
+                <input type="checkbox" value="${c.id}" ${isChecked} onchange="toggleCampSelection('${c.id}')" class="mt-0.5 w-4 h-4 rounded border-white/10 bg-[#343541] accent-[#6366f1] cursor-pointer">
+                <span class="text-xs text-[#ececf1] leading-tight break-words">${c.name}</span>
+              </label>
+            `; 
          });
       }
     }
 
+    function renderAdsetsList(filter = '') {
+      const adsSel = document.getElementById('adsetsList');
+      const filtered = metaAdsets.filter(a => a.name.toLowerCase().includes(filter.toLowerCase()));
+      
+      adsSel.innerHTML = '';
+      if (filtered.length === 0) {
+         adsSel.innerHTML = '<div class="text-xs text-dark-500 py-2">(Nenhum conjunto encontrado)</div>';
+      } else {
+         filtered.forEach(a => { 
+            const isChecked = selectedAdsets.has(a.id) ? 'checked' : '';
+            adsSel.innerHTML += `
+              <label class="flex items-start gap-2 p-2 hover:bg-white/5 rounded-lg cursor-pointer transition-colors">
+                <input type="checkbox" value="${a.id}" ${isChecked} onchange="toggleAdsetSelection('${a.id}')" class="mt-0.5 w-4 h-4 rounded border-white/10 bg-[#343541] accent-[#6366f1] cursor-pointer">
+                <span class="text-xs text-[#ececf1] leading-tight break-words">${a.name}</span>
+              </label>
+            `; 
+         });
+      }
+    }
+    
+    function toggleCampSelection(id) {
+      if (selectedCamps.has(id)) selectedCamps.delete(id);
+      else selectedCamps.add(id);
+      renderSelectedItems();
+    }
+    
+    function toggleAdsetSelection(id) {
+      if (selectedAdsets.has(id)) selectedAdsets.delete(id);
+      else selectedAdsets.add(id);
+      renderSelectedItems();
+    }
+
+    function renderSelectedItems() {
+      const campsContainer = document.getElementById('selectedCampsContainer');
+      const adsetsContainer = document.getElementById('selectedAdsetsContainer');
+      
+      campsContainer.innerHTML = '';
+      if (selectedCamps.size > 0) {
+        metaCampaigns.filter(c => selectedCamps.has(c.id)).forEach(c => {
+          campsContainer.innerHTML += `
+            <div class="flex items-center gap-1.5 bg-[#4f46e5]/30 border border-[#4f46e5]/50 text-white px-2 py-1 rounded-md text-xs transition-colors">
+              <span class="truncate max-w-[200px] leading-tight" title="${c.name.replace(/"/g, '&quot;')}">${c.name}</span>
+              <button type="button" onclick="removeSelectedItem('camp', '${c.id}')" class="text-[#818cf8] hover:text-[#ef4444] hover:bg-[#ef4444]/20 rounded-full w-4 h-4 flex items-center justify-center transition-colors pb-0.5">&times;</button>
+            </div>
+          `;
+        });
+      }
+      
+      adsetsContainer.innerHTML = '';
+      if (selectedAdsets.size > 0) {
+        metaAdsets.filter(a => selectedAdsets.has(a.id)).forEach(a => {
+          adsetsContainer.innerHTML += `
+            <div class="flex items-center gap-1.5 bg-[#4f46e5]/30 border border-[#4f46e5]/50 text-white px-2 py-1 rounded-md text-xs transition-colors">
+              <span class="truncate max-w-[200px] leading-tight" title="${a.name.replace(/"/g, '&quot;')}">${a.name}</span>
+              <button type="button" onclick="removeSelectedItem('adset', '${a.id}')" class="text-[#818cf8] hover:text-[#ef4444] hover:bg-[#ef4444]/20 rounded-full w-4 h-4 flex items-center justify-center transition-colors pb-0.5">&times;</button>
+            </div>
+          `;
+        });
+      }
+    }
+
+    function removeSelectedItem(type, id) {
+      if (type === 'camp') {
+        selectedCamps.delete(id);
+        renderCampaignsList(document.getElementById('campSearch').value);
+      } else if (type === 'adset') {
+        selectedAdsets.delete(id);
+        renderAdsetsList(document.getElementById('adsetSearch').value);
+      }
+      renderSelectedItems();
+    }
+
     // Bind onChange nos formulários
     document.addEventListener('DOMContentLoaded', () => {
-      // oldFormId apenas para conferência, não muda campanhas
+      // Inputs de formulários apenas armazenam valor
       document.getElementById('oldFormId').addEventListener('change', () => {});
-      
-      // newFormId é quem dita as campanhas e conjuntos agora
-      document.getElementById('newFormId').addEventListener('change', (e) => {
-        renderCampaignsAndAdsets(e.target.value);
-      });
-      
-      // Patch pra modo manual (se digitar algo, assume MANUAL pra mostrar campanhas)
+      document.getElementById('newFormId').addEventListener('change', () => {});
       document.getElementById('oldFormManual').addEventListener('input', () => {});
-      
-      document.getElementById('newFormManual').addEventListener('input', (e) => {
-        if(e.target.value.length > 2) renderCampaignsAndAdsets('MANUAL');
-      });
+      document.getElementById('newFormManual').addEventListener('input', () => {});
     });
 
     // ==================== DATE HELPERS ====================
@@ -814,6 +876,15 @@
         document.getElementById('clientEmail').setAttribute('required', 'true');
       } else {
         document.getElementById('clientEmail').removeAttribute('required');
+      }
+      
+      // Ocultar Campanhas/Conjuntos se for Novo Form
+      const container = document.getElementById('campaignsAdsetsContainer');
+      const accountSelected = document.getElementById('adAccountSelect').value;
+      if (isNovo) {
+        container.classList.add('hidden');
+      } else {
+        if (accountSelected) container.classList.remove('hidden');
       }
     }
 
@@ -896,17 +967,35 @@
       const clientEmail = document.getElementById('clientEmail').value.trim();
       const isNovo = document.getElementById('formType').value === 'novo';
 
-      // Auto-set Prioridade Urgente (1) e Prazo para Amanhã
+      // Auto-set Prioridade Urgente (1) e Prazo baseado no horário e dia da semana
       const priority = 1; 
-      const d = new Date(); d.setDate(d.getDate() + 1);
+      const now = new Date();
+      let d = new Date(now);
+      
+      // Se criada após as 16h, joga para amanhã
+      if (now.getHours() >= 16) {
+        d.setDate(d.getDate() + 1);
+      }
+      
+      // Se o prazo cair no final de semana, move para segunda-feira
+      if (d.getDay() === 6) { // Sábado
+        d.setDate(d.getDate() + 2);
+      } else if (d.getDay() === 0) { // Domingo
+        d.setDate(d.getDate() + 1);
+      }
+
       const yyyy = d.getFullYear(), mm = String(d.getMonth() + 1).padStart(2, '0'), dd = String(d.getDate()).padStart(2, '0');
       const goLive = `${yyyy}-${mm}-${dd}`;
 
       const oldForm = getFormLabel('oldFormId', 'oldFormManual');
       const newForm = getFormLabel('newFormId', 'newFormManual');
 
-      const campTexts = currentFilteredCamps.map(c => c.name);
-      const adsetTexts = currentFilteredAdsets.map(a => a.name);
+      // Obter textos de campanhas/conjuntos através do Set de IDs selecionados
+      const selectedCampObjs = metaCampaigns.filter(c => selectedCamps.has(c.id));
+      const selectedAdsetObjs = metaAdsets.filter(a => selectedAdsets.has(a.id));
+      
+      const campTexts = isNovo ? [] : selectedCampObjs.map(c => c.name);
+      const adsetTexts = isNovo ? [] : selectedAdsetObjs.map(a => a.name);
       const obs = document.getElementById('observations').value.trim();
       const mapData = getMappings();
 
@@ -1039,11 +1128,15 @@
         document.getElementById('newFormId').innerHTML = '<option value="">Selecione a conta primeiro...</option>';
         document.getElementById('metaStatus').textContent = '';
         
-        document.getElementById('campaignsList').innerHTML = '<div class="text-xs text-dark-500">Aguardando formulário...</div>';
-        document.getElementById('adsetsList').innerHTML = '<div class="text-xs text-dark-500">Aguardando formulário...</div>';
+        document.getElementById('campaignsList').innerHTML = '<div class="text-xs text-dark-500">Aguardando conta de anúncio...</div>';
+        document.getElementById('adsetsList').innerHTML = '<div class="text-xs text-dark-500">Aguardando conta de anúncio...</div>';
         document.getElementById('campaignsAdsetsContainer').classList.add('hidden');
-        currentFilteredCamps = [];
-        currentFilteredAdsets = [];
+        document.getElementById('campSearch').value = '';
+        document.getElementById('adsetSearch').value = '';
+        selectedCamps.clear();
+        selectedAdsets.clear();
+        renderSelectedItems();
+        
         metaForms = [];
         metaCampaigns = [];
         metaAdsets = [];

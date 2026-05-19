@@ -3,6 +3,7 @@ export default async function handler(req, res) {
   const CLICKUP_TOKEN = process.env.CLICKUP_API_TOKEN || 'pk_3068737_B93TDGSW2CSRIU5LFEHOOCDU0RYENTZU';
   const RICARDO_ID    = parseInt(process.env.RICARDO_ID || '3068737');
   const THIERRY_ID    = parseInt(process.env.THIERRY_ID || '82143493');
+  const HERICK_ID     = parseInt(process.env.HERICK_ID || '272628636');
   const BASE          = 'https://api.clickup.com/api/v2';
 
   if (!CLICKUP_TOKEN) {
@@ -15,14 +16,25 @@ export default async function handler(req, res) {
     return res.status(400).json({ error: 'Parâmetro "path" obrigatório.' });
   }
 
-  // ── Se for criação de task, injeta Ricardo e Thierry como assignees ──
+  // ── Se for criação de task, injeta Ricardo e o gestor correspondente como assignees ──
   let body = req.body;
   if (req.method === 'POST' && apiPath.includes('/task') && !apiPath.includes('/checklist')) {
     if (body && typeof body === 'object') {
       const ids = new Set((body.assignees || []).map(Number));
       ids.add(RICARDO_ID);
-      ids.add(THIERRY_ID);
+      
+      // Decidir o gestor de automação com base na unidade selecionada no front-end
+      if (body.unidade === 'Delta') {
+        ids.add(HERICK_ID);
+      } else {
+        // Padrão/Alpha
+        ids.add(THIERRY_ID);
+      }
+      
       body.assignees = [...ids];
+      
+      // Remove a propriedade temporária para não poluir ou dar erro na chamada oficial do ClickUp
+      delete body.unidade;
     }
   }
 

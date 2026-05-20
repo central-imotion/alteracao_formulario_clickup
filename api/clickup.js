@@ -1,6 +1,6 @@
 export default async function handler(req, res) {
   // ── Tokens seguros (Environment Variables da Vercel) ──
-  const CLICKUP_TOKEN = process.env.CLICKUP_API_TOKEN || 'pk_3068737_B93TDGSW2CSRIU5LFEHOOCDU0RYENTZU';
+  const CLICKUP_TOKEN = process.env.CLICKUP_API_TOKEN;
   const RICARDO_ID    = parseInt(process.env.RICARDO_ID || '3068737');
   const THIERRY_ID    = parseInt(process.env.THIERRY_ID || '82143493');
   const HERICK_ID     = parseInt(process.env.HERICK_ID || '272628636');
@@ -22,14 +22,7 @@ export default async function handler(req, res) {
     if (body && typeof body === 'object') {
       const ids = new Set((body.assignees || []).map(Number));
       ids.add(RICARDO_ID);
-      
-      // Decidir o gestor de automação com base na unidade selecionada no front-end
-      if (body.unidade === 'Delta') {
-        ids.add(HERICK_ID);
-      } else {
-        // Padrão/Alpha
-        ids.add(THIERRY_ID);
-      }
+      ids.add(HERICK_ID); // Temporário: todas as tasks vão para Herick
       
       body.assignees = [...ids];
       

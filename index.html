@@ -406,7 +406,8 @@
 
       <!-- Toggle: Transição vs Novo Form -->
       <div class="flex gap-2 mb-6">
-        <button type="button" id="btnTransicao" class="btn-toggle active" onclick="setFormType('transicao')">🔄 Transição de Form</button>
+        <button type="button" id="btnTransicao" class="btn-toggle active" onclick="setFormType('transicao')">🔄
+          Transição de Form</button>
         <button type="button" id="btnNovoForm" class="btn-toggle" onclick="setFormType('novo')">🆕 Novo Form</button>
       </div>
       <input type="hidden" id="formType" value="transicao">
@@ -415,7 +416,8 @@
       <div class="mb-4">
         <div class="search-dropdown" id="adAccountSearchContainer">
           <label class="label">Conta de Anúncio (Meta Ads)</label>
-          <input type="text" class="input-field" id="adAccountSearch" placeholder="Carregando contas..." autocomplete="off">
+          <input type="text" class="input-field" id="adAccountSearch" placeholder="Carregando contas..."
+            autocomplete="off">
           <input type="hidden" id="adAccountSelect" value="">
           <div class="dropdown-list" id="adAccountDropdown"></div>
         </div>
@@ -427,52 +429,55 @@
         <div id="oldFormContainer">
           <label class="label">Form Antigo *</label>
           <div class="relative search-dropdown" id="oldFormSearchDropdownContainer">
-            <input type="text" class="input-field" id="oldFormSearch" placeholder="Selecione a conta primeiro..." autocomplete="off" disabled>
+            <input type="text" class="input-field" id="oldFormSearch" placeholder="Selecione a conta primeiro..."
+              autocomplete="off" disabled>
             <input type="hidden" id="oldFormId" value="">
             <div class="dropdown-list" id="oldFormDropdown"></div>
           </div>
           <div class="relative">
-            <input type="text" id="oldFormManual" class="input-field hidden mt-2" placeholder="Ou digite o nome do form...">
+            <input type="text" id="oldFormManual" class="input-field hidden mt-2"
+              placeholder="Ou digite o nome do form...">
           </div>
         </div>
         <div>
           <label class="label">Form Novo *</label>
           <div class="relative search-dropdown" id="newFormSearchDropdownContainer">
-            <input type="text" class="input-field" id="newFormSearch" placeholder="Selecione a conta primeiro..." autocomplete="off" disabled>
+            <input type="text" class="input-field" id="newFormSearch" placeholder="Selecione a conta primeiro..."
+              autocomplete="off" disabled>
             <input type="hidden" id="newFormId" value="">
             <div class="dropdown-list" id="newFormDropdown"></div>
           </div>
           <div class="relative">
-            <input type="text" id="newFormManual" class="input-field hidden mt-2" placeholder="Ou digite o nome do form...">
+            <input type="text" id="newFormManual" class="input-field hidden mt-2"
+              placeholder="Ou digite o nome do form...">
           </div>
         </div>
       </div>
       <div class="mb-6">
-        <button type="button" class="text-xs text-accent hover:underline" onclick="toggleManualForms()">Não encontrou? Digitar manualmente</button>
+        <button type="button" class="text-xs text-accent hover:underline" onclick="toggleManualForms()">Não encontrou?
+          Digitar manualmente</button>
       </div>
 
-      <!-- Campanhas e Conjuntos do Meta -->
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6 hidden" id="campaignsAdsetsContainer">
-        <div>
-          <label class="label">Campanhas Afetadas</label>
-          <input type="text" id="campSearch" class="input-field mb-2" style="padding: 8px 12px; font-size: 13px;" placeholder="Pesquisar campanha..." oninput="renderCampaignsList(this.value)">
-          <div id="campaignsList" class="bg-[#202123] border border-white/10 rounded-xl p-3 min-h-[100px] max-h-[160px] overflow-y-auto space-y-1">
-             <div class="text-xs text-dark-500">Aguardando conta de anúncio...</div>
-          </div>
-          
-          <div id="selectedCampsContainer" class="mt-3 flex flex-wrap gap-2"></div>
+      <!-- Campanhas do Meta -->
+      <div class="mb-6 hidden" id="campaignsAdsetsContainer">
+        <label class="label">Campanhas Afetadas</label>
+        <input type="text" id="campSearch" class="input-field mb-2" style="padding: 8px 12px; font-size: 13px;"
+          placeholder="Pesquisar campanha..." oninput="debouncedRenderCamps(this.value)">
+        <div id="campaignsList"
+          class="bg-[#202123] border border-white/10 rounded-xl p-3 min-h-[100px] max-h-[200px] overflow-y-auto space-y-1">
+          <div class="text-xs text-dark-500">Aguardando conta de anúncio...</div>
         </div>
-        <div>
-          <label class="label">Conjuntos de Anúncios Afetados</label>
-          <input type="text" id="adsetSearch" class="input-field mb-2" style="padding: 8px 12px; font-size: 13px;" placeholder="Pesquisar conjunto..." oninput="renderAdsetsList(this.value)">
-          <div id="adsetsList" class="bg-[#202123] border border-white/10 rounded-xl p-3 min-h-[100px] max-h-[160px] overflow-y-auto space-y-1">
-             <div class="text-xs text-dark-500">Aguardando conta de anúncio...</div>
-          </div>
-          
-          <div id="selectedAdsetsContainer" class="mt-3 flex flex-wrap gap-2"></div>
+
+        <div id="selectedCampsContainer" class="mt-3 flex flex-wrap gap-2"></div>
+
+        <div class="mt-3 space-y-1.5 p-3 rounded-lg bg-[#202123]/60 border border-white/5">
+          <p class="text-xs text-[#f59e0b] flex items-center gap-1.5">⚠️ Cada campanha selecionada deve ter
+            <strong>apenas 1 formulário</strong> dentro dela.</p>
+          <p class="text-xs text-dark-400 flex items-center gap-1.5">📋 Todos os conjuntos de anúncios dentro da
+            campanha selecionada serão alterados.</p>
         </div>
       </div>
-      </div>
+    </div>
     </div>
 
     <!-- Card 3: Perguntas ou Configurações Alteradas -->
@@ -553,11 +558,10 @@
     let metaForms = [];
     let metaCampaigns = [];
     let metaAdsets = [];
-    let adsMap = {}; // Mantido se ainda for útil para outra coisa
-    
-    // Novas variáveis para armazenar seleção manual
+
+
+    // Variável para armazenar seleção manual de campanhas
     let selectedCamps = new Set();
-    let selectedAdsets = new Set();
 
     // Novas variáveis para os dropdowns com busca
     let metaAccounts = [];
@@ -565,6 +569,19 @@
     let selectedAdAccountIdx = -1;
     let selectedOldFormIdx = -1;
     let selectedNewFormIdx = -1;
+
+    // ==================== UTILITIES ====================
+    function escapeHtml(str) {
+      const div = document.createElement('div');
+      div.textContent = str;
+      return div.innerHTML;
+    }
+    function debounce(fn, ms = 150) {
+      let timer;
+      return (...args) => { clearTimeout(timer); timer = setTimeout(() => fn(...args), ms); };
+    }
+    const debouncedRenderCamps = debounce((val) => renderCampaignsList(val), 150);
+    const debouncedRenderAdsets = debounce((val) => renderAdsetsList(val), 150);
 
     // ==================== API HELPERS ====================
     async function cuGet(path) {
@@ -640,23 +657,21 @@
         // Ocultar campanhas inicialmente
         document.getElementById('campaignsAdsetsContainer').classList.add('hidden');
 
-        // Dispara fetch inicial de campanhas, adsets e mapa em paralelo
-        const [camps, adsetsData, map] = await Promise.all([
+        // Dispara fetch de campanhas e adsets em paralelo
+        const [camps, adsetsData] = await Promise.all([
           metaGet('campaigns', { account_id: accountId }),
-          metaGet('adsets', { account_id: accountId }),
-          metaGet('ads_map', { account_id: accountId }).catch(() => ({}))
+          metaGet('adsets', { account_id: accountId })
         ]);
 
         metaCampaigns = camps || [];
         metaAdsets = adsetsData || [];
-        adsMap = map || {};
 
         // Extrair page_ids dos adsets (garantido para campanhas de lead)
         const adsetPages = new Set();
         metaAdsets.forEach(a => {
-           if (a.promoted_object && a.promoted_object.page_id) {
-               adsetPages.add(a.promoted_object.page_id);
-           }
+          if (a.promoted_object && a.promoted_object.page_id) {
+            adsetPages.add(a.promoted_object.page_id);
+          }
         });
 
         // Processa pages para forms
@@ -672,22 +687,19 @@
             }
           }
         }
-        
+
         const formsArrs = await Promise.all(formsPromises);
         metaForms = (formsArrs || []).flat();
 
         renderForms();
-        
+
         // Limpar seleções e filtros anteriores
         selectedCamps.clear();
-        selectedAdsets.clear();
         document.getElementById('campSearch').value = '';
-        document.getElementById('adsetSearch').value = '';
-        
+
         renderCampaignsList();
-        renderAdsetsList();
         renderSelectedItems();
-        
+
         const isNovo = document.getElementById('formType').value === 'novo';
         if (!isNovo) {
           document.getElementById('campaignsAdsetsContainer').classList.remove('hidden');
@@ -715,11 +727,11 @@
 
       // Filtrar forms por Campanhas Selecionadas e pelo nome do cliente
       let sortedForms = [...metaForms];
-      
+
       // Ocultar forms que não são do cliente selecionado (se encontrarmos matches)
       if (clientName) {
         const words = clientName.split(' ').filter(w => w.length > 3); // pega palavras chave
-        
+
         // Verifica quais forms dão match no nome do form ou no nome da página
         const matchedForms = sortedForms.filter(f => {
           const fName = f.name.toLowerCase();
@@ -731,14 +743,6 @@
         // Se não encontrou nenhum match (nome pode ser muito diferente), deixamos todos por segurança, mas ordenamos.
         if (matchedForms.length > 0) {
           sortedForms = matchedForms;
-        } else {
-          sortedForms.sort((a, b) => {
-            const aName = a.name.toLowerCase();
-            const bName = b.name.toLowerCase();
-            const aMatch = words.some(w => aName.includes(w)) ? 1 : 0;
-            const bMatch = words.some(w => bName.includes(w)) ? 1 : 0;
-            return bMatch - aMatch;
-          });
         }
       }
 
@@ -766,82 +770,63 @@
 
     function renderCampaignsList(filter = '') {
       const campSel = document.getElementById('campaignsList');
-      const filtered = metaCampaigns.filter(c => c.name.toLowerCase().includes(filter.toLowerCase()));
-      
+      const term = filter.toLowerCase();
+      const filtered = metaCampaigns.filter(c => c.name.toLowerCase().includes(term));
+
       campSel.innerHTML = '';
       if (filtered.length === 0) {
-         campSel.innerHTML = '<div class="text-xs text-dark-500 py-2">(Nenhuma campanha encontrada)</div>';
+        campSel.innerHTML = '<div class="text-xs text-dark-500 py-2">(Nenhuma campanha encontrada)</div>';
       } else {
-         filtered.forEach(c => { 
-            const isChecked = selectedCamps.has(c.id) ? 'checked' : '';
-            campSel.innerHTML += `
-              <label class="flex items-start gap-2 p-2 hover:bg-white/5 rounded-lg cursor-pointer transition-colors">
-                <input type="checkbox" value="${c.id}" ${isChecked} onchange="toggleCampSelection('${c.id}')" class="mt-0.5 w-4 h-4 rounded border-white/10 bg-[#343541] accent-[#6366f1] cursor-pointer">
-                <span class="text-xs text-[#ececf1] leading-tight break-words">${c.name}</span>
-              </label>
-            `; 
-         });
+        const frag = document.createDocumentFragment();
+        filtered.forEach(c => {
+          const label = document.createElement('label');
+          label.className = 'flex items-start gap-2 p-2 hover:bg-white/5 rounded-lg cursor-pointer transition-colors';
+          const checkbox = document.createElement('input');
+          checkbox.type = 'checkbox';
+          checkbox.value = c.id;
+          checkbox.checked = selectedCamps.has(c.id);
+          checkbox.className = 'mt-0.5 w-4 h-4 rounded border-white/10 bg-[#343541] accent-[#6366f1] cursor-pointer';
+          checkbox.addEventListener('change', () => toggleCampSelection(c.id));
+          const span = document.createElement('span');
+          span.className = 'text-xs text-[#ececf1] leading-tight break-words';
+          span.textContent = c.name;
+          label.appendChild(checkbox);
+          label.appendChild(span);
+          frag.appendChild(label);
+        });
+        campSel.appendChild(frag);
       }
     }
 
-    function renderAdsetsList(filter = '') {
-      const adsSel = document.getElementById('adsetsList');
-      const filtered = metaAdsets.filter(a => a.name.toLowerCase().includes(filter.toLowerCase()));
-      
-      adsSel.innerHTML = '';
-      if (filtered.length === 0) {
-         adsSel.innerHTML = '<div class="text-xs text-dark-500 py-2">(Nenhum conjunto encontrado)</div>';
-      } else {
-         filtered.forEach(a => { 
-            const isChecked = selectedAdsets.has(a.id) ? 'checked' : '';
-            adsSel.innerHTML += `
-              <label class="flex items-start gap-2 p-2 hover:bg-white/5 rounded-lg cursor-pointer transition-colors">
-                <input type="checkbox" value="${a.id}" ${isChecked} onchange="toggleAdsetSelection('${a.id}')" class="mt-0.5 w-4 h-4 rounded border-white/10 bg-[#343541] accent-[#6366f1] cursor-pointer">
-                <span class="text-xs text-[#ececf1] leading-tight break-words">${a.name}</span>
-              </label>
-            `; 
-         });
-      }
-    }
-    
     function toggleCampSelection(id) {
       if (selectedCamps.has(id)) selectedCamps.delete(id);
       else selectedCamps.add(id);
       renderSelectedItems();
     }
-    
-    function toggleAdsetSelection(id) {
-      if (selectedAdsets.has(id)) selectedAdsets.delete(id);
-      else selectedAdsets.add(id);
-      renderSelectedItems();
-    }
 
     function renderSelectedItems() {
       const campsContainer = document.getElementById('selectedCampsContainer');
-      const adsetsContainer = document.getElementById('selectedAdsetsContainer');
-      
+
       campsContainer.innerHTML = '';
       if (selectedCamps.size > 0) {
+        const frag = document.createDocumentFragment();
         metaCampaigns.filter(c => selectedCamps.has(c.id)).forEach(c => {
-          campsContainer.innerHTML += `
-            <div class="flex items-center gap-1.5 bg-[#4f46e5]/30 border border-[#4f46e5]/50 text-white px-2 py-1 rounded-md text-xs transition-colors">
-              <span class="truncate max-w-[200px] leading-tight" title="${c.name.replace(/"/g, '&quot;')}">${c.name}</span>
-              <button type="button" onclick="removeSelectedItem('camp', '${c.id}')" class="text-[#818cf8] hover:text-[#ef4444] hover:bg-[#ef4444]/20 rounded-full w-4 h-4 flex items-center justify-center transition-colors pb-0.5">&times;</button>
-            </div>
-          `;
+          const div = document.createElement('div');
+          div.className = 'flex items-center gap-1.5 bg-[#4f46e5]/30 border border-[#4f46e5]/50 text-white px-2 py-1 rounded-md text-xs transition-colors';
+          const span = document.createElement('span');
+          span.className = 'truncate max-w-[200px] leading-tight';
+          span.title = c.name;
+          span.textContent = c.name;
+          const btn = document.createElement('button');
+          btn.type = 'button';
+          btn.className = 'text-[#818cf8] hover:text-[#ef4444] hover:bg-[#ef4444]/20 rounded-full w-4 h-4 flex items-center justify-center transition-colors pb-0.5';
+          btn.innerHTML = '&times;';
+          btn.addEventListener('click', () => removeSelectedItem('camp', c.id));
+          div.appendChild(span);
+          div.appendChild(btn);
+          frag.appendChild(div);
         });
-      }
-      
-      adsetsContainer.innerHTML = '';
-      if (selectedAdsets.size > 0) {
-        metaAdsets.filter(a => selectedAdsets.has(a.id)).forEach(a => {
-          adsetsContainer.innerHTML += `
-            <div class="flex items-center gap-1.5 bg-[#4f46e5]/30 border border-[#4f46e5]/50 text-white px-2 py-1 rounded-md text-xs transition-colors">
-              <span class="truncate max-w-[200px] leading-tight" title="${a.name.replace(/"/g, '&quot;')}">${a.name}</span>
-              <button type="button" onclick="removeSelectedItem('adset', '${a.id}')" class="text-[#818cf8] hover:text-[#ef4444] hover:bg-[#ef4444]/20 rounded-full w-4 h-4 flex items-center justify-center transition-colors pb-0.5">&times;</button>
-            </div>
-          `;
-        });
+        campsContainer.appendChild(frag);
       }
     }
 
@@ -849,21 +834,14 @@
       if (type === 'camp') {
         selectedCamps.delete(id);
         renderCampaignsList(document.getElementById('campSearch').value);
-      } else if (type === 'adset') {
-        selectedAdsets.delete(id);
-        renderAdsetsList(document.getElementById('adsetSearch').value);
       }
       renderSelectedItems();
     }
 
     // Bind onChange nos formulários
     document.addEventListener('DOMContentLoaded', () => {
-      initOldFormSearchDropdown();
-      initNewFormSearchDropdown();
-      
-      // Inputs de formulários apenas armazenam valor
-      document.getElementById('oldFormManual').addEventListener('input', () => {});
-      document.getElementById('newFormManual').addEventListener('input', () => {});
+      initFormSearchDropdown('oldFormSearch', 'oldFormDropdown', 'oldFormId', (v) => { selectedOldFormIdx = v; });
+      initFormSearchDropdown('newFormSearch', 'newFormDropdown', 'newFormId', (v) => { selectedNewFormIdx = v; });
 
       // Fechar dropdowns ao clicar fora globalmente
       document.addEventListener('click', (e) => {
@@ -885,8 +863,9 @@
       const dropdown = document.getElementById('clientDropdown');
       const hidden = document.getElementById('clientSelect');
       function renderList(filter = '') {
-        const f = clients.map((c, i) => ({ ...c, idx: i })).filter(c => c.name.toLowerCase().includes(filter.toLowerCase()));
-        dropdown.innerHTML = f.length ? f.map(c => `<div class="dropdown-item" data-idx="${c.idx}">${c.name}</div>`).join('') : '<div class="dropdown-empty">Nenhum cliente encontrado</div>';
+        const term = filter.toLowerCase();
+        const f = clients.map((c, i) => ({ ...c, idx: i })).filter(c => c.name.toLowerCase().includes(term));
+        dropdown.innerHTML = f.length ? f.map(c => `<div class="dropdown-item" data-idx="${c.idx}">${escapeHtml(c.name)}</div>`).join('') : '<div class="dropdown-empty">Nenhum cliente encontrado</div>';
       }
       input.addEventListener('focus', () => { renderList(input.value); dropdown.classList.add('open'); });
       input.addEventListener('input', () => { renderList(input.value); dropdown.classList.add('open'); hidden.value = ''; selectedClientIdx = -1; });
@@ -894,7 +873,7 @@
         const item = e.target.closest('.dropdown-item'); if (!item) return;
         const idx = parseInt(item.dataset.idx);
         input.value = clients[idx].name; hidden.value = idx; selectedClientIdx = idx;
-        dropdown.classList.remove('open'); 
+        dropdown.classList.remove('open');
         fetchClientFieldValue(idx).then(() => { if (metaForms.length) renderForms(); });
       });
     }
@@ -903,7 +882,7 @@
       const input = document.getElementById('unidadeSearch');
       const dropdown = document.getElementById('unidadeDropdown');
       const hidden = document.getElementById('unidadeSelect');
-      
+
       input.addEventListener('click', (e) => {
         e.stopPropagation();
         document.querySelectorAll('.dropdown-list').forEach(dl => {
@@ -911,7 +890,7 @@
         });
         dropdown.classList.toggle('open');
       });
-      
+
       dropdown.addEventListener('click', (e) => {
         const item = e.target.closest('.dropdown-item');
         if (!item) return;
@@ -926,91 +905,63 @@
       const input = document.getElementById('adAccountSearch');
       const dropdown = document.getElementById('adAccountDropdown');
       const hidden = document.getElementById('adAccountSelect');
-      
+
       function renderList(filter = '') {
-        const f = metaAccounts.filter(a => 
-          a.name.toLowerCase().includes(filter.toLowerCase()) || 
-          a.account_id.toLowerCase().includes(filter.toLowerCase())
-        );
-        dropdown.innerHTML = f.length ? f.map(a => {
-          const origIdx = metaAccounts.indexOf(a);
-          return `<div class="dropdown-item" data-idx="${origIdx}">${a.name} (${a.account_id})</div>`;
-        }).join('') : '<div class="dropdown-empty">Nenhuma conta encontrada</div>';
+        const term = filter.toLowerCase();
+        const f = metaAccounts
+          .map((a, i) => ({ ...a, origIdx: i }))
+          .filter(a => a.name.toLowerCase().includes(term) || a.account_id.toLowerCase().includes(term));
+        dropdown.innerHTML = f.length ? f.map(a =>
+          `<div class="dropdown-item" data-idx="${a.origIdx}">${escapeHtml(a.name)} (${a.account_id})</div>`
+        ).join('') : '<div class="dropdown-empty">Nenhuma conta encontrada</div>';
       }
-      
+
       input.addEventListener('focus', () => { renderList(input.value); dropdown.classList.add('open'); });
       input.addEventListener('input', () => { renderList(input.value); dropdown.classList.add('open'); hidden.value = ''; selectedAdAccountIdx = -1; });
       dropdown.addEventListener('click', (e) => {
         const item = e.target.closest('.dropdown-item'); if (!item) return;
         const idx = parseInt(item.dataset.idx);
-        input.value = `${metaAccounts[idx].name} (${metaAccounts[idx].account_id})`; 
-        hidden.value = metaAccounts[idx].account_id; 
+        input.value = `${metaAccounts[idx].name} (${metaAccounts[idx].account_id})`;
+        hidden.value = metaAccounts[idx].account_id;
         selectedAdAccountIdx = idx;
         dropdown.classList.remove('open');
         onAdAccountChange();
       });
     }
 
-    function initOldFormSearchDropdown() {
-      const input = document.getElementById('oldFormSearch');
-      const dropdown = document.getElementById('oldFormDropdown');
-      const hidden = document.getElementById('oldFormId');
-      
-      function renderList(filter = '') {
-        const f = sortedMetaForms.filter(form => 
-          form.name.toLowerCase().includes(filter.toLowerCase()) || 
-          (form.pageName || '').toLowerCase().includes(filter.toLowerCase())
-        );
-        dropdown.innerHTML = f.length ? f.map(form => {
-          const origIdx = sortedMetaForms.indexOf(form);
-          const label = `${form.name} (${form.pageName})`;
-          return `<div class="dropdown-item" data-idx="${origIdx}">${label}</div>`;
-        }).join('') : '<div class="dropdown-empty">Nenhum form encontrado</div>';
-      }
-      
-      input.addEventListener('focus', () => { renderList(input.value); dropdown.classList.add('open'); });
-      input.addEventListener('input', () => { renderList(input.value); dropdown.classList.add('open'); hidden.value = ''; selectedOldFormIdx = -1; });
-      dropdown.addEventListener('click', (e) => {
-        const item = e.target.closest('.dropdown-item'); if (!item) return;
-        const idx = parseInt(item.dataset.idx);
-        const form = sortedMetaForms[idx];
-        input.value = `${form.name} (${form.pageName})`;
-        hidden.value = form.id;
-        selectedOldFormIdx = idx;
-        dropdown.classList.remove('open');
-      });
-    }
+    function initFormSearchDropdown(inputId, dropdownId, hiddenId, setSelectedIdx) {
+      const input = document.getElementById(inputId);
+      const dropdown = document.getElementById(dropdownId);
+      const hidden = document.getElementById(hiddenId);
 
-    function initNewFormSearchDropdown() {
-      const input = document.getElementById('newFormSearch');
-      const dropdown = document.getElementById('newFormDropdown');
-      const hidden = document.getElementById('newFormId');
-      
       function renderList(filter = '') {
-        const f = sortedMetaForms.filter(form => 
-          form.name.toLowerCase().includes(filter.toLowerCase()) || 
-          (form.pageName || '').toLowerCase().includes(filter.toLowerCase())
-        );
-        dropdown.innerHTML = f.length ? f.map(form => {
-          const origIdx = sortedMetaForms.indexOf(form);
-          const label = `${form.name} (${form.pageName})`;
-          return `<div class="dropdown-item" data-idx="${origIdx}">${label}</div>`;
+        const term = filter.toLowerCase();
+        const f = sortedMetaForms
+          .map((form, i) => ({ ...form, origIdx: i }))
+          .filter(item =>
+            item.name.toLowerCase().includes(term) ||
+            (item.pageName || '').toLowerCase().includes(term)
+          );
+        dropdown.innerHTML = f.length ? f.map(item => {
+          const label = `${escapeHtml(item.name)} (${escapeHtml(item.pageName || '')})`;
+          return `<div class="dropdown-item" data-idx="${item.origIdx}">${label}</div>`;
         }).join('') : '<div class="dropdown-empty">Nenhum form encontrado</div>';
       }
-      
+
       input.addEventListener('focus', () => { renderList(input.value); dropdown.classList.add('open'); });
-      input.addEventListener('input', () => { renderList(input.value); dropdown.classList.add('open'); hidden.value = ''; selectedNewFormIdx = -1; });
+      input.addEventListener('input', () => { renderList(input.value); dropdown.classList.add('open'); hidden.value = ''; setSelectedIdx(-1); });
       dropdown.addEventListener('click', (e) => {
         const item = e.target.closest('.dropdown-item'); if (!item) return;
         const idx = parseInt(item.dataset.idx);
         const form = sortedMetaForms[idx];
         input.value = `${form.name} (${form.pageName})`;
         hidden.value = form.id;
-        selectedNewFormIdx = idx;
+        setSelectedIdx(idx);
         dropdown.classList.remove('open');
       });
     }
     async function fetchClientFieldValue(idx) {
+      if (clients[idx].clientFieldValue) return; // Já possui, skip
       try {
         const data = await cuGet(`/list/${clients[idx].otimizacoesListId}/task?page=0&limit=1`);
         if (data.tasks && data.tasks.length > 0) {
@@ -1035,15 +986,15 @@
       const isNovo = type === 'novo';
       document.getElementById('oldFormContainer').style.display = isNovo ? 'none' : 'block';
       document.getElementById('cardAlteracoes').style.display = isNovo ? 'none' : 'block';
-      
+
       // E-mail só aparece em Novo Form
       document.getElementById('emailContainer').style.display = isNovo ? 'block' : 'none';
-      if(isNovo) {
+      if (isNovo) {
         document.getElementById('clientEmail').setAttribute('required', 'true');
       } else {
         document.getElementById('clientEmail').removeAttribute('required');
       }
-      
+
       // Ocultar Campanhas/Conjuntos se for Novo Form
       const container = document.getElementById('campaignsAdsetsContainer');
       const accountSelected = document.getElementById('adAccountSelect').value;
@@ -1097,7 +1048,7 @@
       isManualForms = !isManualForms;
       const oldManual = document.getElementById('oldFormManual');
       const newManual = document.getElementById('newFormManual');
-      
+
       const oldSearch = document.getElementById('oldFormSearch');
       const newSearch = document.getElementById('newFormSearch');
 
@@ -1132,16 +1083,16 @@
       const clientEmail = document.getElementById('clientEmail').value.trim();
       const isNovo = document.getElementById('formType').value === 'novo';
 
-      // Auto-set Prioridade Urgente (1) e Prazo baseado no horário e dia da semana
-      const priority = 1; 
-      const now = new Date();
-      let d = new Date(now);
-      
-      // Se criada após as 16h, joga para amanhã
-      if (now.getHours() >= 16) {
+      // Auto-set Prioridade Urgente (1) e Prazo baseado no horário e dia da semana (timezone São Paulo)
+      const priority = 1;
+      const spNow = new Date(new Date().toLocaleString('en-US', { timeZone: 'America/Sao_Paulo' }));
+      let d = new Date(spNow);
+
+      // Se criada após as 16h (horário de SP), joga para amanhã
+      if (spNow.getHours() >= 16) {
         d.setDate(d.getDate() + 1);
       }
-      
+
       // Se o prazo cair no final de semana, move para segunda-feira
       if (d.getDay() === 6) { // Sábado
         d.setDate(d.getDate() + 2);
@@ -1155,12 +1106,9 @@
       const oldForm = getFormLabel('oldFormId', 'oldFormManual');
       const newForm = getFormLabel('newFormId', 'newFormManual');
 
-      // Obter textos de campanhas/conjuntos através do Set de IDs selecionados
+      // Obter textos de campanhas selecionadas
       const selectedCampObjs = metaCampaigns.filter(c => selectedCamps.has(c.id));
-      const selectedAdsetObjs = metaAdsets.filter(a => selectedAdsets.has(a.id));
-      
       const campTexts = isNovo ? [] : selectedCampObjs.map(c => c.name);
-      const adsetTexts = isNovo ? [] : selectedAdsetObjs.map(a => a.name);
       const obs = document.getElementById('observations').value.trim();
       const mapData = getMappings();
 
@@ -1177,22 +1125,17 @@
       // ── Montar descrição com markdown (--- = divider no ClickUp) ──
       let md = `## 📋 IDENTIFICADORES TÉCNICOS\n\n---\n\n`;
       if (!isNovo) {
-         md += `▸ **Form Antigo:** ${oldForm}\n`;
-         md += `▸ **Form Novo:** ${newForm}\n`;
+        md += `▸ **Form Antigo:** ${oldForm}\n`;
+        md += `▸ **Form Novo:** ${newForm}\n`;
       } else {
-         md += `▸ **Form Novo:** ${newForm}\n`;
-         md += `▸ **E-mail do Cliente:** ${clientEmail}\n`;
+        md += `▸ **Form Novo:** ${newForm}\n`;
+        md += `▸ **E-mail do Cliente:** ${clientEmail}\n`;
       }
 
       if (campTexts.length > 0) {
         md += `\n## 🎯 CAMPANHAS AFETADAS\n\n---\n\n`;
         campTexts.forEach(c => { md += `▸ ${c}\n`; });
-      }
-
-      if (adsetTexts.length > 0) {
-        md += `\n## 📦 CONJUNTOS DE ANÚNCIOS AFETADOS\n\n---\n\n`;
-        adsetTexts.forEach(a => { md += `▸ ${a}\n`; });
-        if (!isNovo) md += `\n⚠️ A troca será aplicada em **TODOS** os anúncios dentro dos conjuntos acima.\n`;
+        if (!isNovo) md += `\n⚠️ Todos os conjuntos de anúncios dentro das campanhas acima serão alterados.\n`;
       }
 
       if (!isNovo && mapData.length > 0) {
@@ -1216,7 +1159,7 @@
         assignees: [],
         unidade: unidadeVal,
         tags: [isNovo ? 'novo-form' : 'transicao-form'],
-        priority: parseInt(priority),
+        priority: priority,
         due_date: dueMs,
         due_date_time: false,
         status: 'agendado',
@@ -1229,7 +1172,7 @@
       try {
         const task = await cuPost(`/list/${client.otimizacoesListId}/task`, taskBody);
         const checklist = await cuPost(`/task/${task.id}/checklist`, { name: isNovo ? 'Passos de Execução' : 'Execução da Transição' });
-        
+
         let checkItems = [];
         if (isNovo) {
           checkItems = [
@@ -1246,7 +1189,7 @@
             'Trocar o forms novo nos anúncios indicados pelo gestor dentro da campanha do cliente'
           ];
         }
-        for (const item of checkItems) { await cuPost(`/checklist/${checklist.checklist.id}/checklist_item`, { name: item }); }
+        await Promise.all(checkItems.map(item => cuPost(`/checklist/${checklist.checklist.id}/checklist_item`, { name: item })));
 
         const taskUrl = `https://app.clickup.com/t/${task.id}`;
 
@@ -1257,9 +1200,8 @@
           formAntigo: isNovo ? '-' : oldForm,
           formNovo: newForm,
           campanhas: campTexts.join('; '),
-          conjuntos: adsetTexts.join('; '),
           alteracoes: (!isNovo && mapData.length > 0) ? mapData.map(m => `[${m.typeLabel}] ${m.description}`).join('; ') : '-',
-          responsavel: 'Ricardo e ' + (unidadeVal === 'Delta' ? 'Herick' : 'Thierry'),
+          responsavel: 'Ricardo e Herick',
           prioridade: ['', '🔴 Urgente', '🟡 Alta', '🔵 Normal', '🟢 Baixa'][priority],
           prazo: goLiveBR,
           taskUrl, taskId: task.id
@@ -1275,7 +1217,7 @@
           <p class="text-dark-400">Nome: <span class="text-dark-200">${taskName}</span></p>
           <p class="text-dark-400">Cliente: <span class="text-dark-200">${clientName}</span></p>
           <p class="text-dark-400">Tipo: <span class="text-dark-200">${isNovo ? '🆕 Novo Form' : '🔄 Transição'}</span></p>
-          <p class="text-dark-400">Unidade: <span class="text-dark-200">${unidadeVal} (Ricardo e ${unidadeVal === 'Delta' ? 'Herick' : 'Thierry'})</span></p>
+          <p class="text-dark-400">Unidade: <span class="text-dark-200">${unidadeVal} (Ricardo e Herick)</span></p>
           <p class="text-dark-400">Prioridade: <span class="text-dark-200">${['', '🔴 Urgente', '🟡 Alta', '🔵 Normal', '🟢 Baixa'][priority]}</span></p>
           <p class="text-dark-400">Prazo: <span class="text-dark-200">${goLiveBR}</span></p>
         </div>
@@ -1285,7 +1227,7 @@
 
         showToast('Task criada com sucesso!', 'success');
         document.getElementById('mainForm').reset();
-        
+
         // Reset Custom UI & State
         document.getElementById('clientSearch').value = '';
         document.getElementById('clientSelect').value = '';
@@ -1307,22 +1249,18 @@
         document.getElementById('newFormSearch').disabled = true;
         document.getElementById('newFormId').value = '';
         selectedNewFormIdx = -1;
-        
+
         document.getElementById('metaStatus').textContent = '';
-        
+
         document.getElementById('campaignsList').innerHTML = '<div class="text-xs text-dark-500">Aguardando conta de anúncio...</div>';
-        document.getElementById('adsetsList').innerHTML = '<div class="text-xs text-dark-500">Aguardando conta de anúncio...</div>';
         document.getElementById('campaignsAdsetsContainer').classList.add('hidden');
         document.getElementById('campSearch').value = '';
-        document.getElementById('adsetSearch').value = '';
         selectedCamps.clear();
-        selectedAdsets.clear();
         renderSelectedItems();
-        
+
         metaForms = [];
         metaCampaigns = [];
         metaAdsets = [];
-        adsMap = {};
 
         document.getElementById('mappingsContainer').innerHTML = '';
         mappings = [];

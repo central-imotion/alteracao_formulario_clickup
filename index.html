@@ -1186,7 +1186,7 @@
             'Reconfigurar os novos campos em TODOS os módulos do Make (Sheets, HTTP Request, HTML do Email, Kommo etc)',
             'Salvar tudo e disparar um teste final',
             'Apagar o dado do teste da planilha de leads do cliente',
-            'Trocar o forms novo nos anúncios indicados pelo gestor dentro da campanha do cliente'
+            'Trocar o forms novo nos anúncios indicados pelo gestor dentro da campanha do cliente',
           ];
         }
         await Promise.all(checkItems.map(item => cuPost(`/checklist/${checklist.checklist.id}/checklist_item`, { name: item })));

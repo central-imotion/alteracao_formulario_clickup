@@ -1,3 +1,13 @@
+// In-memory state to alternate assignees without writing files (which triggers nodemon restarts)
+let lastAssignee = 'thierry'; // Default to thierry so that the first one is Herick
+
+function getNextAssignee() {
+  const nextAssignee = lastAssignee === 'herick' ? 'thierry' : 'herick';
+  lastAssignee = nextAssignee;
+  console.log(`[Assignee Alternation] Previous: ${lastAssignee === 'herick' ? 'thierry' : 'herick'} | Next: ${nextAssignee}`);
+  return nextAssignee;
+}
+
 export default async function handler(req, res) {
   // ── Tokens seguros (Environment Variables da Vercel) ──
   const CLICKUP_TOKEN = process.env.CLICKUP_API_TOKEN;
@@ -22,7 +32,13 @@ export default async function handler(req, res) {
     if (body && typeof body === 'object') {
       const ids = new Set((body.assignees || []).map(Number));
       ids.add(RICARDO_ID);
-      ids.add(HERICK_ID); // Temporário: todas as tasks vão para Herick
+      
+      const nextAssignee = getNextAssignee();
+      if (nextAssignee === 'herick') {
+        ids.add(HERICK_ID);
+      } else {
+        ids.add(THIERRY_ID);
+      }
       
       body.assignees = [...ids];
       

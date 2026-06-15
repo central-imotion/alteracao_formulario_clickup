@@ -372,22 +372,12 @@
         <h2 class="text-sm font-semibold text-dark-200 uppercase tracking-wider">Identificação Geral</h2>
       </div>
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-        <div class="search-dropdown">
+        <div class="search-dropdown md:col-span-2">
           <label class="label">Cliente *</label>
           <input type="text" class="input-field" id="clientSearch" placeholder="Carregando clientes..."
             autocomplete="off">
           <input type="hidden" id="clientSelect" value="">
           <div class="dropdown-list" id="clientDropdown"></div>
-        </div>
-        <div class="search-dropdown">
-          <label class="label">Unidade *</label>
-          <input type="text" class="input-field select-input" id="unidadeSearch" placeholder="Selecione a unidade..."
-            readonly autocomplete="off" style="cursor: pointer;">
-          <input type="hidden" id="unidadeSelect" value="">
-          <div class="dropdown-list" id="unidadeDropdown">
-            <div class="dropdown-item" data-value="Alpha">Alpha</div>
-            <div class="dropdown-item" data-value="Delta">Delta</div>
-          </div>
         </div>
         <div id="emailContainer" style="display: none;" class="md:col-span-2">
           <label class="label" for="clientEmail">E-mail do Cliente (Make) *</label>
@@ -616,7 +606,6 @@
         clients.sort((a, b) => a.name.localeCompare(b.name, 'pt-BR'));
         document.getElementById('clientSearch').placeholder = 'Buscar cliente...';
         initSearchDropdown();
-        initUnidadeDropdown();
         setStatus('success', `ClickUp OK — ${clients.length} clientes`);
       } catch (err) {
         setStatus('error', `Erro ClickUp: ${err.message}`);
@@ -878,28 +867,6 @@
       });
     }
 
-    function initUnidadeDropdown() {
-      const input = document.getElementById('unidadeSearch');
-      const dropdown = document.getElementById('unidadeDropdown');
-      const hidden = document.getElementById('unidadeSelect');
-
-      input.addEventListener('click', (e) => {
-        e.stopPropagation();
-        document.querySelectorAll('.dropdown-list').forEach(dl => {
-          if (dl !== dropdown) dl.classList.remove('open');
-        });
-        dropdown.classList.toggle('open');
-      });
-
-      dropdown.addEventListener('click', (e) => {
-        const item = e.target.closest('.dropdown-item');
-        if (!item) return;
-        const val = item.dataset.value;
-        input.value = val;
-        hidden.value = val;
-        dropdown.classList.remove('open');
-      });
-    }
 
     function initAdAccountSearchDropdown() {
       const input = document.getElementById('adAccountSearch');
@@ -1079,7 +1046,6 @@
     async function submitForm() {
       const btn = document.getElementById('submitBtn');
       const clientIdx = document.getElementById('clientSelect').value;
-      const unidadeVal = document.getElementById('unidadeSelect').value;
       const clientEmail = document.getElementById('clientEmail').value.trim();
       const isNovo = document.getElementById('formType').value === 'novo';
 
@@ -1112,7 +1078,7 @@
       const obs = document.getElementById('observations').value.trim();
       const mapData = getMappings();
 
-      if (clientIdx === '' || unidadeVal === '' || (isNovo && !clientEmail) || !newForm || (!isNovo && !oldForm)) {
+      if (clientIdx === '' || (isNovo && !clientEmail) || !newForm || (!isNovo && !oldForm)) {
         showToast('Preencha todos os campos obrigatórios (*)', 'error');
         return;
       }
@@ -1157,7 +1123,6 @@
         name: taskName,
         markdown_description: md,
         assignees: [],
-        unidade: unidadeVal,
         tags: [isNovo ? 'novo-form' : 'transicao-form'],
         priority: priority,
         due_date: dueMs,
@@ -1171,6 +1136,15 @@
 
       try {
         const task = await cuPost(`/list/${client.otimizacoesListId}/task`, taskBody);
+
+        // Determine responsible persons dynamically from task assignees
+        const assignedIds = (task.assignees || []).map(a => Number(a.id));
+        const names = [];
+        if (assignedIds.includes(3068737)) names.push('Ricardo');
+        if (assignedIds.includes(272628636)) names.push('Herick');
+        if (assignedIds.includes(82143493)) names.push('Thierry');
+        const responsavelText = names.join(' e ') || 'Ricardo e Herick';
+
         const checklist = await cuPost(`/task/${task.id}/checklist`, { name: isNovo ? 'Passos de Execução' : 'Execução da Transição' });
 
         let checkItems = [];
@@ -1201,7 +1175,7 @@
           formNovo: newForm,
           campanhas: campTexts.join('; '),
           alteracoes: (!isNovo && mapData.length > 0) ? mapData.map(m => `[${m.typeLabel}] ${m.description}`).join('; ') : '-',
-          responsavel: 'Ricardo e Herick',
+          responsavel: responsavelText,
           prioridade: ['', '🔴 Urgente', '🟡 Alta', '🔵 Normal', '🟢 Baixa'][priority],
           prazo: goLiveBR,
           taskUrl, taskId: task.id
@@ -1217,7 +1191,7 @@
           <p class="text-dark-400">Nome: <span class="text-dark-200">${taskName}</span></p>
           <p class="text-dark-400">Cliente: <span class="text-dark-200">${clientName}</span></p>
           <p class="text-dark-400">Tipo: <span class="text-dark-200">${isNovo ? '🆕 Novo Form' : '🔄 Transição'}</span></p>
-          <p class="text-dark-400">Unidade: <span class="text-dark-200">${unidadeVal} (Ricardo e Herick)</span></p>
+          <p class="text-dark-400">Responsável: <span class="text-dark-200">${responsavelText}</span></p>
           <p class="text-dark-400">Prioridade: <span class="text-dark-200">${['', '🔴 Urgente', '🟡 Alta', '🔵 Normal', '🟢 Baixa'][priority]}</span></p>
           <p class="text-dark-400">Prazo: <span class="text-dark-200">${goLiveBR}</span></p>
         </div>
@@ -1231,7 +1205,6 @@
         // Reset Custom UI & State
         document.getElementById('clientSearch').value = '';
         document.getElementById('clientSelect').value = '';
-        document.getElementById('unidadeSelect').value = '';
         selectedClientIdx = -1;
 
         document.getElementById('adAccountSearch').value = '';

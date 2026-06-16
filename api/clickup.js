@@ -1,11 +1,72 @@
-// In-memory state to alternate assignees without writing files (which triggers nodemon restarts)
-let lastAssignee = 'thierry'; // Default to thierry so that the first one is Herick
+// Performance cache: teamId never changes, safe to reset on cold start
+let cachedTeamId = null;
 
-function getNextAssignee() {
-  const nextAssignee = lastAssignee === 'herick' ? 'thierry' : 'herick';
-  lastAssignee = nextAssignee;
-  console.log(`[Assignee Alternation] Previous: ${lastAssignee === 'herick' ? 'thierry' : 'herick'} | Next: ${nextAssignee}`);
-  return nextAssignee;
+async function getTeamId(token) {
+  if (cachedTeamId) return cachedTeamId;
+  const r = await fetch('https://api.clickup.com/api/v2/team', {
+    headers: { 'Authorization': token }
+  });
+  const data = await r.json();
+  cachedTeamId = data.teams[0].id;
+  return cachedTeamId;
+}
+
+// Stateless assignee rotation: reads the last task from ClickUp instead of relying
+// on in-memory state (which resets on every serverless cold start).
+async function getNextAssigneeFromClickUp(token, herickId, thierryId) {
+  const BASE = 'https://api.clickup.com/api/v2';
+  const headers = { 'Authorization': token };
+
+  try {
+    const teamId = await getTeamId(token);
+    const taskParams = 'order_by=date_created&reverse_sort=true&include_closed=true&page=0&limit=1';
+
+    // Two separate queries because tasks only carry ONE of these tags at a time.
+    // A combined tags[] query uses AND logic in ClickUp and would return 0 results.
+    const [novoRes, transicaoRes] = await Promise.all([
+      fetch(`${BASE}/team/${teamId}/task?tags[]=novo-form&${taskParams}`, { headers }),
+      fetch(`${BASE}/team/${teamId}/task?tags[]=transicao-form&${taskParams}`, { headers })
+    ]);
+
+    const [novoData, transicaoData] = await Promise.all([novoRes.json(), transicaoRes.json()]);
+
+    const novoTask      = novoData.tasks?.[0]      ?? null;
+    const transicaoTask = transicaoData.tasks?.[0] ?? null;
+
+    // Pick whichever of the two is more recent
+    let lastTask = null;
+    if (novoTask && transicaoTask) {
+      lastTask = Number(novoTask.date_created) >= Number(transicaoTask.date_created)
+        ? novoTask
+        : transicaoTask;
+    } else {
+      lastTask = novoTask ?? transicaoTask;
+    }
+
+    if (!lastTask) {
+      console.log('[Assignee] Sem histórico de tasks — padrão: herick');
+      return 'herick';
+    }
+
+    const assigneeIds = (lastTask.assignees || []).map(a => Number(a.id));
+
+    if (assigneeIds.includes(herickId)) {
+      console.log(`[Assignee] Última task (${lastTask.id}) foi Herick → próximo: thierry`);
+      return 'thierry';
+    }
+    if (assigneeIds.includes(thierryId)) {
+      console.log(`[Assignee] Última task (${lastTask.id}) foi Thierry → próximo: herick`);
+      return 'herick';
+    }
+
+    // Nenhum dos dois gestores encontrado na última task (edge case)
+    console.log(`[Assignee] Última task (${lastTask.id}) sem gestor identificado — padrão: herick`);
+    return 'herick';
+
+  } catch (err) {
+    console.error('[Assignee] Erro ao consultar ClickUp — padrão: herick', err);
+    return 'herick';
+  }
 }
 
 export default async function handler(req, res) {
@@ -32,16 +93,16 @@ export default async function handler(req, res) {
     if (body && typeof body === 'object') {
       const ids = new Set((body.assignees || []).map(Number));
       ids.add(RICARDO_ID);
-      
-      const nextAssignee = getNextAssignee();
+
+      const nextAssignee = await getNextAssigneeFromClickUp(CLICKUP_TOKEN, HERICK_ID, THIERRY_ID);
       if (nextAssignee === 'herick') {
         ids.add(HERICK_ID);
       } else {
         ids.add(THIERRY_ID);
       }
-      
+
       body.assignees = [...ids];
-      
+
       // Remove a propriedade temporária para não poluir ou dar erro na chamada oficial do ClickUp
       delete body.unidade;
     }

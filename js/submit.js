@@ -37,10 +37,11 @@ export async function submitForm() {
   // Obter textos de campanhas selecionadas
   const selectedCampObjs = state.metaCampaigns.filter(c => state.selectedCamps.has(c.id));
   const campTexts = isNovo ? [] : selectedCampObjs.map(c => c.name);
+  const sheetsLink = document.getElementById('sheetsLink').value.trim();
   const obs = document.getElementById('observations').value.trim();
   const mapData = getMappings();
 
-  if (clientIdx === '' || (isNovo && !clientEmail) || !newForm || (!isNovo && !oldForm)) {
+  if (clientIdx === '' || (isNovo && !clientEmail) || !newForm || (!isNovo && !oldForm) || !sheetsLink) {
     showToast('Preencha todos os campos obrigatórios (*)', 'error');
     return;
   }
@@ -59,6 +60,8 @@ export async function submitForm() {
     md += `▸ **Form Novo:** ${newForm}\n`;
     md += `▸ **E-mail do Cliente:** ${clientEmail}\n`;
   }
+
+  md += `\n## 📊 PLANILHA DE LEADS\n\n---\n\n▸ **Link:** ${sheetsLink}\n`;
 
   if (campTexts.length > 0) {
     md += `\n## 🎯 CAMPANHAS AFETADAS\n\n---\n\n`;
@@ -92,7 +95,8 @@ export async function submitForm() {
     status: 'agendado',
     custom_fields: [
       { id: '7a39eb0f-c345-4a0e-afb6-731face29d55', value: 'b1728ec3-c653-4bed-9367-298e041fa637' },
-      { id: '255f93b7-5151-4786-b1ba-076a50fa0ded', value: clientName }
+      { id: '255f93b7-5151-4786-b1ba-076a50fa0ded', value: clientName },
+      { id: '44731507-befe-40e3-b64e-fd9ed7eb52bb', value: true }
     ]
   };
 
@@ -125,7 +129,9 @@ export async function submitForm() {
         'Trocar o forms novo nos anúncios indicados pelo gestor dentro da campanha do cliente',
       ];
     }
-    await Promise.all(checkItems.map(item => cuPost(`/checklist/${checklist.checklist.id}/checklist_item`, { name: item })));
+    for (const item of checkItems) {
+      await cuPost(`/checklist/${checklist.checklist.id}/checklist_item`, { name: item });
+    }
 
     const taskUrl = `https://app.clickup.com/t/${task.id}`;
 
@@ -185,6 +191,7 @@ export async function submitForm() {
     document.getElementById('newFormId').value = '';
     state.selectedNewFormIdx = -1;
 
+    document.getElementById('sheetsLink').value = '';
     document.getElementById('metaStatus').textContent = '';
 
     document.getElementById('campaignsList').innerHTML = '<div class="text-xs text-dark-500">Aguardando conta de anúncio...</div>';
